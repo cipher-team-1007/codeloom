@@ -1,0 +1,34 @@
+rules:
+  - rule_id: "offscreen-images"
+    title: "Defer offscreen images"
+    category: "performance"
+    core_web_vital: "LCP"
+    has_template_fix: true
+    context_dependent: false
+    fix_template:
+      title: "Add lazy loading to below-fold images"
+      explanation: "Images outside the viewport load immediately, consuming bandwidth and delaying the page. Adding loading='lazy' defers them until the user scrolls near."
+      root_cause: "Images missing loading='lazy' attribute"
+      confidence: 0.93
+      manual_review: false
+      pattern: "add_attribute"
+      attribute_name: "loading"
+      attribute_value: "lazy"
+      validation_steps:
+        - "Verify below-fold images have loading='lazy'"
+        - "Ensure hero/above-fold images do NOT have lazy loading"
+        - "Check LCP metric improvement"
+
+  - rule_id: "render-blocking-resources"
+    title: "Eliminate render-blocking resources"
+    category: "performance"
+    core_web_vital: "FCP"
+    has_template_fix: false
+    context_dependent: true
+
+  - rule_id: "uses-responsive-images"
+    title: "Serve properly sized images"
+    category: "performance"
+    core_web_vital: "LCP"
+    has_template_fix: false
+    context_dependent: true

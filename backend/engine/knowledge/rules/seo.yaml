@@ -1,0 +1,41 @@
+rules:
+  - rule_id: "document-title"
+    title: "Page should have a title"
+    category: "seo"
+    has_template_fix: true
+    context_dependent: true
+    search_impact: "Title is the primary ranking signal in search results"
+    fix_template:
+      title: "Add descriptive page title"
+      explanation: "Search engines display the <title> as the clickable headline in results. A missing title means poor search visibility and confusing browser tabs."
+      root_cause: "No <title> element in document head"
+      confidence: 0.90
+      manual_review: true
+      validation_steps:
+        - "Verify <title> exists"
+        - "Check title length is 30-60 characters"
+        - "Include primary keyword"
+
+  - rule_id: "meta-description"
+    title: "Page should have meta description"
+    category: "seo"
+    has_template_fix: true
+    context_dependent: true
+    search_impact: "Meta description appears as snippet text in search results"
+    fix_template:
+      title: "Add meta description"
+      explanation: "Without a meta description, search engines auto-generate a snippet from page content, which is often poorly formatted or irrelevant."
+      root_cause: "No <meta name='description'> in document head"
+      confidence: 0.88
+      manual_review: true
+      validation_steps:
+        - "Verify meta description tag exists"
+        - "Check length is 120-160 characters"
+        - "Ensure it summarizes page content accurately"
+
+  - rule_id: "heading-order"
+    title: "Heading levels should increase sequentially"
+    category: "seo"
+    has_template_fix: false
+    context_dependent: true
+    search_impact: "Proper heading hierarchy helps search engines understand content structure"

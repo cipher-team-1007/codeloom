@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeLoom — AI-Powered Web Quality & Accessibility Engineer</title>
+  <meta name="description"
+  content="CodeLoom scans live websites and repositories, traces accessibility violations to shared components, and generates safe AI-powered code fixes.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+  href="https://fonts.googleapis.com/css2?family=Saira:ital,wdth,wght@0,110.5,100..900;1,110.5,100..900&family=Outfit:wght@800;900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+  rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+  <!-- Gemini Spectrum Top Scroll Progress Beam -->
+  <div class="scroll-progress-beam" id="scroll-progress-beam"></div>
+
+  <!-- Frosted Background Ambient Lighting (#408afa & #51b199) -->
+  <div class="bg-lighting-wrapper">
+  <div class="bg-blue-fog"></div>
+  <div class="bg-teal-reflection"></div>
+  <div class="bg-bottom-glow"></div>
+  </div>
+  <div class="bg-noise"></div>
+  <div class="bg-grid-overlay"></div>
+
+  <!-- 1. Announcement Bar -->
+  <div class="announcement-bar" id="announcement-bar">
+  <strong>SOURCE-AWARE WEB QUALITY ENGINEERING</strong>
+  Runtime findings &rarr; source mapping &rarr; verified remediation
+  <button class="announcement-close-btn" id="close-announcement-btn" aria-label="Close announcement">
+    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+  </button>
+  </div>
+
+  <!-- 2. Sticky Navigation Bar -->
+  <nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="brand-logo">
+    <span>CodeLoom</span>
+    </a>
+
+    <ul class="nav-links">
+    <li><a href="#why" class="nav-link">Why</a></li>
+    <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+    <li><a href="#features" class="nav-link">Features</a></li>
+    <li><a href="#source-aware" class="nav-link">Source Intelligence</a></li>
+    <li><a href="#faq" class="nav-link">FAQ</a></li>
+    </ul>
+
+    <div class="nav-actions">
+    <a href="audit-url.html" class="btn-secondary" id="nav-github-btn">
+      <i class="fa-solid fa-globe" aria-hidden="true"></i> Audit Website
+    </a>
+    <a href="audit-code.html" class="btn-neon" style="margin-right: 0;">Audit Codebase <i class="fa-solid fa-code"
+      aria-hidden="true"></i></a>
+    </div>
+  </div>
+  </nav>
+
+  <!-- 3. Hero Section -->
+  <section class="hero-section" id="hero">
+  <div class="hero-overlay"></div>
+  <div class="container hero-grid">
+    <!-- Hero Left Text Content -->
+    <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-icon"></span>
+      AI WEB QUALITY ENGINEER
+    </div>
+
+    <h1 class="hero-headline">
+      AI Web Quality Engineer <br>
+      <span class="gradient-text-blue">Fixes The Source, Not The Symptoms.</span>
+    </h1>
+
+    <p class="hero-subheading">
+      Scan a deployed website. Understand recurring issues. Connect your codebase to trace findings to source and
+      prepare reviewable fixes.
+    </p>
+
+    <!-- Quick URL Input Form -->
+    <form action="audit-url.html" method="GET" id="hero-url-form-element" class="hero-url-form">
+      <input type="text" id="hero-url-input" name="url" placeholder="Enter website URL or GitHub repo..."
+      autocomplete="off">
+      <button type="submit" class="btn-neon" id="hero-audit-cta">Audit Website</button>
+    </form>
+
+    <div
+      style="margin-top: 16px; font-size: 0.85rem; color: var(--text-dim); display: flex; gap: 20px; align-items: center;">
+      <span><i class="fa-solid fa-shield-halved" style="color: var(--accent-green);" aria-hidden="true"></i>
+      URL-only mode requires no repo access</span>
+      <span><i class="fa-solid fa-code-commit" style="color: var(--accent-teal);" aria-hidden="true"></i> AI fixes
+      reviewable before apply</span>
+    </div>
+    </div>
+
+    <div class="hero-dashboard-preview" id="hero-live-preview"
+    style="transform: perspective(1200px) rotateY(-12deg) rotateX(6deg) rotateZ(1.5deg);">
+    <div class="dashboard-header">
+      <div class="dashboard-dots">
+      <div class="dashboard-dot" style="background: #f87171;"></div>
+      <div class="dashboard-dot" style="background: #fbbf24;"></div>
+      <div class="dashboard-dot" style="background: #34d399;"></div>
+      </div>
+      <div class="dashboard-title-pill" id="hero-status-pill">
+      <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-blue);" aria-hidden="true"></i> <span
+        id="hero-status-text">AI Agent: Analyzing DOM violations...</span>
+      </div>
+    </div>
+
+    <!-- Animated Progress Beam -->
+    <div class="hero-progress-container">
+      <div class="hero-progress-bar" id="hero-live-progress" style="width: 50%;"></div>
+    </div>
+
+    <!-- Simulated Live URL Input Bar -->
+    <div class="hero-simulated-url-bar">
+      <i class="fa-solid fa-globe" style="color: var(--accent-blue);" aria-hidden="true"></i>
+      <span class="hero-typing-url" id="hero-typing-url">https://your-domain.com</span>
+      <span class="typing-cursor"></span>
+    </div>
+
+    <!-- Live Component Root Cause Card -->
+    <div class="dashboard-root-cause-card hero-agent-step-card" id="hero-agent-step-card">
+      <div class="hero-step-badge" id="hero-step-badge"
+      style="color: var(--accent-blue); font-weight: 700; margin-bottom: 6px;"><i class="fa-solid fa-wheelchair"
+        aria-hidden="true"></i> axe-core WCAG 2.2 Engine</div>
+      <div class="hero-step-detail" id="hero-step-detail" style="font-size: 0.875rem; color: #fff;">
+      <code>DOM violations</code> → <span style="color: #f87171;">Button component missing ARIA</span>
+      </div>
+    </div>
+
+    <!-- Live Code Diff Typing Terminal -->
+    <div class="hero-diff-terminal">
+      <div class="terminal-header">
+      <span><i class="fa-solid fa-code" aria-hidden="true"></i> Proposed Patch (Button.tsx)</span>
+      <span class="terminal-tag" id="hero-term-status"><i class="fa-solid fa-rotate fa-spin"
+        aria-hidden="true"></i> Clustering...</span>
+      </div>
+      <div class="terminal-body" id="hero-terminal-body">
+      <div style="color: #f87171; padding: 6px 0;"><i class="fa-solid fa-triangle-exclamation"></i> DOM
+        violations detected across pages</div>
+      </div>
+    </div>
+
+    <!-- Floating Stat Pills -->
+    <div class="floating-stat-card hero-float-card1">
+      <i class="fa-solid fa-bolt" style="color: #fbbf24;" aria-hidden="true"></i> <span>Runtime Evidence →
+      Component</span>
+    </div>
+
+    <div class="floating-stat-card hero-float-card2">
+      <i class="fa-solid fa-circle-check" style="color: #34d399;" aria-hidden="true"></i> <span>Reviewable
+      Change</span>
+    </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 4. Trust Bar / Works With Stack -->
+  <section class="trust-section">
+  <div class="container">
+    <div class="trust-title">Works with existing web stack</div>
+    <div class="tech-grid">
+    <div class="tech-badge"><i class="fa-brands fa-react" style="color: #38bdf8;" aria-hidden="true"></i> React
+    </div>
+    <div class="tech-badge"><i class="fa-solid fa-code" style="color: #38bdf8;" aria-hidden="true"></i> TypeScript /
+      JSX</div>
+    <div class="tech-badge"><i class="fa-solid fa-file-code" style="color: #fb923c;" aria-hidden="true"></i> HTML /
+      CSS</div>
+    <div class="tech-badge"><i class="fa-solid fa-vial" style="color: #34d399;" aria-hidden="true"></i> Playwright
+    </div>
+    <div class="tech-badge"><i class="fa-solid fa-wheelchair" style="color: #a78bfa;" aria-hidden="true"></i>
+      axe-core</div>
+    <div class="tech-badge"><i class="fa-brands fa-github" style="color: #cbd5e1;" aria-hidden="true"></i> GitHub
+    </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 3. WHY / PROBLEM SECTION -->
+  <section class="problem-section" id="why">
+  <div class="container">
+    <div class="section-header">
+    <div class="section-tag">WHY CODELOOM</div>
+    <h2 class="section-title">
+      Web audits find problems. <br>
+      <span class="gradient-text-blue">Developers still have to fix them.</span>
+    </h2>
+    <p class="section-subtitle">
+      Accessibility, SEO and performance scanners can identify failures across a site. The harder engineering
+      problem is understanding which findings are related, where the underlying source lives, what change is safe to
+      make, and whether the fix actually worked.
+    </p>
+    </div>
+
+    <div class="problem-grid" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="problem-card">
+      <div class="problem-icon"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></div>
+      <div class="problem-stat" style="font-size: 1.15rem; font-weight: 700; color: #fff;">SCATTERED FINDINGS</div>
+      <p class="problem-desc"
+      style="font-size: 0.9rem; color: var(--text-muted); margin-top: 8px; line-height: 1.6;">
+      One underlying UI pattern can produce repeated failures across many rendered elements.
+      </p>
+    </div>
+
+    <div class="problem-card">
+      <div class="problem-icon"><i class="fa-solid fa-code-branch" aria-hidden="true"></i></div>
+      <div class="problem-stat" style="font-size: 1.15rem; font-weight: 700; color: #fff;">MISSING SOURCE CONTEXT
+      </div>
+      <p class="problem-desc"
+      style="font-size: 0.9rem; color: var(--text-muted); margin-top: 8px; line-height: 1.6;">
+      A browser selector tells you what failed — not necessarily where to change it in the repository.
+      </p>
+    </div>
+
+    <div class="problem-card">
+      <div class="problem-icon"><i class="fa-solid fa-rotate" aria-hidden="true"></i></div>
+      <div class="problem-stat" style="font-size: 1.15rem; font-weight: 700; color: #fff;">UNVERIFIED FIXES</div>
+      <p class="problem-desc"
+      style="font-size: 0.9rem; color: var(--text-muted); margin-top: 8px; line-height: 1.6;">
+      Changing code is only useful when the result can be re-tested.
+      </p>
+    </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 4. CHOOSE YOUR AUDIT -->
+  <section class="choose-audit-section" id="choose-audit" style="padding: 90px 0; background: rgba(0, 0, 0, 0.2);">
+  <div class="container">
+    <div class="section-header">
+    <div class="section-tag">START HERE</div>
+    <h2 class="section-title">Choose how you want to investigate.</h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px; max-width: 960px; margin: 0 auto;">
+    <!-- Card 1: Website Audit -->
+    <div class="linear-card"
+      style="padding: 36px; display: flex; flex-direction: column; justify-content: space-between;">
+      <div>
+      <span class="linear-tag badge-blue" style="margin-bottom: 12px;">WEBSITE AUDIT</span>
+      <h3 class="linear-card-title" style="font-size: 1.4rem; margin-bottom: 8px;">Inspect the live experience
+      </h3>
+      <p class="linear-card-desc" style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 24px;">
+        Scan a deployed website with Playwright, axe-core and web-quality analyzers to identify accessibility, SEO
+        and performance issues.
+      </p>
+      </div>
+      <div>
+      <a href="audit-url.html" class="btn-neon"
+        style="width: 100%; text-align: center; justify-content: center; margin-bottom: 12px;">
+        Audit Website &rarr;
+      </a>
+      <div style="text-align: center; font-size: 0.8rem; color: var(--text-dim);">
+        <i class="fa-solid fa-check" style="color: var(--accent-green);" aria-hidden="true"></i> No repository
+        required
+      </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Codebase Audit -->
+    <div class="linear-card"
+      style="padding: 36px; display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(56, 189, 248, 0.3);">
+      <div>
+      <span class="linear-tag badge-blue"
+        style="margin-bottom: 12px; background: rgba(56, 189, 248, 0.15); color: var(--accent-teal);">CODEBASE
+        AUDIT</span>
+      <h3 class="linear-card-title" style="font-size: 1.4rem; margin-bottom: 8px;">Inspect the source</h3>
+      <p class="linear-card-desc" style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 24px;">
+        Connect a public GitHub repository to analyze source structure and prepare source-aware remediation.
+      </p>
+      </div>
+      <div>
+      <a href="audit-code.html" class="btn-neon"
+        style="width: 100%; text-align: center; justify-content: center; margin-bottom: 12px; background: linear-gradient(135deg, var(--accent-teal) 0%, var(--accent-blue) 100%);">
+        Audit Codebase &rarr;
+      </a>
+      <div style="text-align: center; font-size: 0.8rem; color: var(--text-dim);">
+        <i class="fa-solid fa-code-branch" style="color: var(--accent-teal);" aria-hidden="true"></i> Source-aware
+        analysis
+      </div>
+      </div>
+    </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 5. HOW IT WORKS -->
+  <section class="how-it-works" id="how-it-works" style="padding: 90px 0;">
+  <div class="container">
+    <div class="section-header">
+    <div class="section-tag">SIMPLE WORKFLOW</div>
+    <h2 class="section-title">From finding to fix.</h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
+    <div class="problem-card" style="padding: 28px 20px; text-align: left;">
+      <div style="font-size: 1.6rem; font-weight: 800; color: var(--accent-blue); margin-bottom: 12px;">01 SCAN
+      </div>
+      <p style="font-size: 0.875rem; color: var(--text-muted); line-height: 1.6;">
+      Inspect the rendered application and collect structured accessibility, SEO and performance evidence.
+      </p>
+    </div>
+
+    <div class="problem-card" style="padding: 28px 20px; text-align: left;">
+      <div style="font-size: 1.6rem; font-weight: 800; color: var(--accent-teal); margin-bottom: 12px;">02
+      UNDERSTAND</div>
+      <p style="font-size: 0.875rem; color: var(--text-muted); line-height: 1.6;">
+      Normalize findings and group related issues into root-cause patterns.
+      </p>
+    </div>
+
+    <div class="problem-card" style="padding: 28px 20px; text-align: left;">
+      <div style="font-size: 1.6rem; font-weight: 800; color: var(--accent-blue); margin-bottom: 12px;">03 TRACE
+      </div>
+      <p style="font-size: 0.875rem; color: var(--text-muted); line-height: 1.6;">
+      Connect repository context to map runtime evidence to candidate source locations.
+      </p>
+    </div>
+
+    <div class="problem-card" style="padding: 28px 20px; text-align: left;">
+      <div style="font-size: 1.6rem; font-weight: 800; color: var(--accent-teal); margin-bottom: 12px;">04 REMEDIATE
+      </div>
+      <p style="font-size: 0.875rem; color: var(--text-muted); line-height: 1.6;">
+      Generate a reviewable fix, validate it and verify the result before delivery.
+      </p>
+    </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 6. CORE CAPABILITIES -->
+  <section class="features-section" id="features" style="padding: 90px 0;">
+  <div class="container">
+    <div class="section-header">
+    <div class="section-tag">CORE CAPABILITIES</div>
+    <h2 class="section-title">Built for developer efficiency</h2>
+    <p class="section-subtitle">
+      Everything you need to audit runtime experiences, map source context, and deliver reviewable fixes.
+    </p>
+    </div>
+
+    <div class="bento-grid">
+    <!-- Card 1: Runtime Web Audits -->
+    <div class="bento-card bento-col-6">
+      <div class="bento-header">
+      <span class="bento-tag">AUDIT ENGINE</span>
+      <h3 class="bento-title">Runtime Web Audits</h3>
+      <p class="bento-desc">Playwright-powered browser scans combined with axe-core and custom SEO/performance
+        analysis.</p>
+      </div>
+      <div class="bento-visual" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+      <span class="footer-badge-version"
+        style="background: rgba(56, 189, 248, 0.1); color: var(--accent-blue); border-color: rgba(56, 189, 248, 0.3);">Accessibility</span>
+      <span class="footer-badge-version"
+        style="background: rgba(45, 212, 191, 0.1); color: var(--accent-teal); border-color: rgba(45, 212, 191, 0.3);">SEO</span>
+      <span class="footer-badge-version"
+        style="background: rgba(168, 85, 247, 0.1); color: #c084fc; border-color: rgba(168, 85, 247, 0.3);">Performance</span>
+      </div>
+    </div>
+
+    <!-- Card 2: Root-Cause Clustering -->
+    <div class="bento-card bento-col-6">
+      <div class="bento-header">
+      <span class="bento-tag">PATTERN CLUSTERING</span>
+      <h3 class="bento-title">Root-Cause Clustering</h3>
+      <p class="bento-desc">Deduplicate related findings and group repeated rendered patterns into actionable
+        clusters.</p>
+      </div>
+      <div class="bento-visual">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-family: var(--font-mono); font-size: 0.85rem; color: #fff;">12 findings &rarr; 1
+        cluster</span>
+        <span style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Example</span>
+      </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Source Intelligence -->
+    <div class="bento-card bento-col-6">
+      <div class="bento-header">
+      <span class="bento-tag">SOURCE MATCHING</span>
+      <h3 class="bento-title">Source Intelligence</h3>
+      <p class="bento-desc">Connect a repository and map runtime evidence to candidate TypeScript/JSX source nodes
+        using deterministic AST analysis.</p>
+      </div>
+      <div class="bento-visual"
+      style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+      <div>button.checkout</div>
+      <div style="color: var(--accent-blue); margin: 4px 0;">&darr; SOURCE CANDIDATE</div>
+      <div style="color: #fff;">src/components/CheckoutButton.tsx <span
+        style="color: var(--text-dim);">L84–L91</span></div>
+      </div>
+    </div>
+
+    <!-- Card 4: AI Fix Generation -->
+    <div class="bento-card bento-col-6">
+      <div class="bento-header">
+      <span class="bento-tag">CODE REMEDIATION</span>
+      <h3 class="bento-title">AI Fix Generation</h3>
+      <p class="bento-desc">Generate structured remediation candidates with before/after code and developer
+        guidance.</p>
+      </div>
+      <div class="bento-visual" style="font-family: var(--font-mono); font-size: 0.8rem;">
+      <div style="color: var(--text-dim); font-size: 0.75rem; margin-bottom: 6px; text-transform: uppercase;">AI
+        SUGGESTION</div>
+      <div style="color: #f87171;">- &lt;button class="icon-btn"&gt;</div>
+      <div style="color: var(--accent-green);">+ &lt;button class="icon-btn" aria-label="Open menu"&gt;</div>
+      </div>
+    </div>
+
+    <!-- Card 5: Validation & Verification -->
+    <div class="bento-card bento-col-6">
+      <div class="bento-header">
+      <span class="bento-tag">QUALITY GATES</span>
+      <h3 class="bento-title">Validation & Verification</h3>
+      <p class="bento-desc">Validate source target, syntax and patch scope before candidate verification and
+        regression comparison.</p>
+      </div>
+      <div class="bento-visual"
+      style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem; color: var(--text-main);">
+      <div><i class="fa-solid fa-layer-group" style="color: var(--accent-teal);" aria-hidden="true"></i> Source
+        Target</div>
+      <div><i class="fa-solid fa-code" style="color: var(--accent-teal);" aria-hidden="true"></i> Syntax</div>
+      <div><i class="fa-solid fa-shield-halved" style="color: var(--accent-teal);" aria-hidden="true"></i> Patch
+        Scope</div>
+      <div><i class="fa-solid fa-rotate" style="color: var(--accent-teal);" aria-hidden="true"></i> Regression
+        Check</div>
+      </div>
+    </div>
+
+    <!-- Card 6: GitHub Delivery -->
+    <div class="bento-card bento-col-6">
+      <div class="bento-header">
+      <span class="bento-tag">REPOSITORY INTEGRATION</span>
+      <h3 class="bento-title">GitHub Delivery</h3>
+      <p class="bento-desc">Review approved changes and publish remediation through the repository workflow.</p>
+      </div>
+      <div class="bento-visual" style="display: flex; gap: 16px; align-items: center;">
+      <span style="font-size: 0.85rem; color: #fff; font-family: var(--font-mono);"><i class="fa-brands fa-github"
+        aria-hidden="true"></i> GitHub</span>
+      <span style="font-size: 0.85rem; color: var(--accent-blue); font-family: var(--font-mono);"><i
+        class="fa-solid fa-code-pull-request" aria-hidden="true"></i> Pull Request</span>
+      </div>
+    </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 7. SOURCE-AWARE DIFFERENCE -->
+  <section class="usp-section" id="source-aware" style="padding: 90px 0;">
+  <div class="container">
+    <div class="usp-box" style="padding: 48px 36px;">
+    <div style="text-align: center; max-width: 720px; margin: 0 auto 36px auto;">
+      <div class="section-tag">SOURCE-AWARE</div>
+      <h2 class="section-title">The difference is knowing where to fix it.</h2>
+      <p class="section-subtitle" style="font-size: 0.95rem; line-height: 1.6;">
+      A rendered audit can identify a failing button, image or document signal. When repository context is
+      available, CodeLoom can use deterministic source analysis to find candidate source nodes related to that
+      runtime evidence.
+      </p>
+    </div>
+
+    <div class="usp-diagram" style="margin-top: 32px;">
+      <div class="usp-node">
+      <div
+        style="font-size: 0.75rem; font-weight: 700; color: var(--accent-blue); text-transform: uppercase; margin-bottom: 4px;">
+        LIVE FINDING</div>
+      <div style="font-size: 0.9rem; font-weight: 700; color: #ffffff;">button.checkout</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Missing accessible name</div>
+      </div>
+
+      <div class="usp-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></div>
+
+      <div class="usp-node">
+      <div
+        style="font-size: 0.75rem; font-weight: 700; color: var(--accent-teal); text-transform: uppercase; margin-bottom: 4px;">
+        ROOT CAUSE</div>
+      <div style="font-size: 0.9rem; font-weight: 700; color: #ffffff;">Repeated Pattern</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Shared component usage</div>
+      </div>
+
+      <div class="usp-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></div>
+
+      <div class="usp-node highlight">
+      <div
+        style="font-size: 0.75rem; font-weight: 700; color: var(--accent-teal); text-transform: uppercase; margin-bottom: 4px;">
+        SOURCE</div>
+      <div style="font-size: 0.9rem; font-family: var(--font-mono); color: #ffffff; font-weight: 700;">
+        CheckoutButton.tsx</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">L84–L91</div>
+      </div>
+
+      <div class="usp-arrow"><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></div>
+
+      <div class="usp-node">
+      <div
+        style="font-size: 0.75rem; font-weight: 700; color: var(--accent-green); text-transform: uppercase; margin-bottom: 4px;">
+        PATCH</div>
+      <div style="font-size: 0.9rem; font-weight: 700; color: #ffffff;">Reviewable Change</div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Reviewable source change</div>
+      </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 28px; font-size: 0.85rem; color: var(--text-dim);">
+      <i class="fa-solid fa-circle-info" aria-hidden="true"></i> Source mappings are evidence-based. Ambiguous or
+      insufficient matches are surfaced for review rather than guessed.
+    </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 8. FAQ -->
+  <section class="faq-section" id="faq" style="padding: 90px 0;">
+  <div class="container">
+    <div class="section-header">
+    <div class="section-tag">FAQ</div>
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    </div>
+
+    <div class="faq-list">
+    <div class="faq-item">
+      <button class="faq-question">
+      <span>What is CodeLoom?</span>
+      <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+      </button>
+      <div class="faq-answer">
+      CodeLoom helps developers move from accessibility, SEO and performance findings to actionable remediation
+      using runtime auditing, root-cause clustering, source intelligence and reviewable fixes.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+      <span>Can I use CodeLoom without GitHub?</span>
+      <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+      </button>
+      <div class="faq-answer">
+      Yes. Website Audit mode works from a deployed URL without repository access.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+      <span>What changes when I connect a repository?</span>
+      <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+      </button>
+      <div class="faq-answer">
+      Repository context allows CodeLoom to analyze source structure and map runtime evidence to candidate source
+      locations.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+      <span>What if source mapping is ambiguous?</span>
+      <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+      </button>
+      <div class="faq-answer">
+      CodeLoom does not guess. Ambiguous mappings are surfaced for review.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+      <span>Does AI directly modify my repository?</span>
+      <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+      </button>
+      <div class="faq-answer">
+      No. AI-generated remediation is presented for review and goes through validation before delivery.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+      <span>Is automated auditing the same as compliance certification?</span>
+      <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+      </button>
+      <div class="faq-answer">
+      No. Automated analysis identifies machine-detectable issues but does not replace manual accessibility
+      testing or formal compliance review.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question">
+      <span>What technologies power CodeLoom?</span>
+      <i class="fa-solid fa-chevron-down faq-icon" aria-hidden="true"></i>
+      </button>
+      <div class="faq-answer">
+      Playwright, axe-core, Lighthouse/custom analyzers, Python/FastAPI, Node.js/TypeScript AST analysis and
+      GitHub integration.
+      </div>
+    </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 9. FINAL CTA -->
+  <section class="cta-section" id="cta" style="padding: 90px 0;">
+  <div class="container">
+    <div class="cta-box">
+    <h2 class="cta-title">
+      Start with your website. <br>
+      <span class="gradient-text-blue">Go deeper when you need to.</span>
+    </h2>
+    <p class="cta-subtitle">
+      Audit a deployed experience first. Connect its codebase when you need source-level context.
+    </p>
+
+    <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+      <a href="audit-url.html" class="btn-secondary" style="padding: 16px 36px; font-size: 1rem;">
+      Audit Website <i class="fa-solid fa-globe" aria-hidden="true"></i>
+      </a>
+      <a href="audit-code.html" class="btn-neon" style="padding: 16px 36px; font-size: 1rem;">
+      Analyze Codebase <i class="fa-solid fa-code" aria-hidden="true"></i>
+      </a>
+    </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- 10. Production Footer v1.0.0 -->
+  <footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+    <!-- COLUMN 1 — BRAND -->
+    <div class="footer-col footer-brand-col">
+      <a href="index.html" class="brand-logo"
+      style="margin-bottom: 12px; display: inline-flex; align-items: center; gap: 10px;">
+      <span>CodeLoom</span>
+      <span class="footer-badge-version">v1.0.0</span>
+      </a>
+      <p class="footer-brand-desc">
+      AI-powered web quality engineering that connects runtime evidence to actionable source-level remediation.
+      </p>
+    </div>
+
+    <!-- COLUMN 2 — PRODUCT -->
+    <div class="footer-col">
+      <h4>PRODUCT</h4>
+      <ul>
+      <li><a href="audit-url.html">Audit Website</a></li>
+      <li><a href="audit-code.html">Developer Workspace</a></li>
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#features">Features</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </div>
+
+    <!-- COLUMN 3 — BUILT WITH -->
+    <div class="footer-col">
+      <h4>BUILT WITH</h4>
+      <ul>
+      <li><a href="https://playwright.dev/docs/intro" target="_blank" rel="noopener noreferrer">Playwright</a>
+      </li>
+      <li><a href="https://github.com/dequelabs/axe-core" target="_blank" rel="noopener noreferrer">axe-core</a>
+      </li>
+      <li><a href="https://fastapi.tiangolo.com/" target="_blank" rel="noopener noreferrer">FastAPI</a></li>
+      <li><a href="https://www.typescriptlang.org/" target="_blank" rel="noopener noreferrer">TypeScript</a></li>
+      <li><a href="https://github.com/GoogleChrome/lighthouse" target="_blank"
+        rel="noopener noreferrer">Lighthouse</a></li>
+      </ul>
+    </div>
+
+    <!-- COLUMN 4 — TEAM + CONTACT -->
+    <div class="footer-col footer-meta-col">
+      <section class="footer-team">
+      <h4>BUILT BY RECURSION</h4>
+      <div class="team-members-list">
+        <div class="team-member-row">
+        <div class="team-member-name">Parmarth Kumar</div>
+        <div class="team-member-links">
+          <a href="https://github.com/parmarth-kumar" target="_blank" rel="noopener noreferrer"
+          aria-label="Parmarth Kumar GitHub Profile">
+          <i class="fa-brands fa-github" aria-hidden="true"></i> GitHub
+          </a>
+          <span class="link-separator" aria-hidden="true">·</span>
+          <a href="https://www.linkedin.com/in/parmarth-kumar/" target="_blank" rel="noopener noreferrer"
+          aria-label="Parmarth Kumar LinkedIn Profile">
+          <i class="fa-brands fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </div>
+        </div>
+
+        <div class="team-divider" aria-hidden="true"></div>
+
+        <div class="team-member-row">
+        <div class="team-member-name">Kunal Raj</div>
+        <div class="team-member-links">
+          <a href="https://github.com/kunal-raj-dev" target="_blank" rel="noopener noreferrer"
+          aria-label="Kunal Raj GitHub Profile">
+          <i class="fa-brands fa-github" aria-hidden="true"></i> GitHub
+          </a>
+          <span class="link-separator" aria-hidden="true">·</span>
+          <a href="https://www.linkedin.com/in/kunal-raj-8471b8418/" target="_blank" rel="noopener noreferrer"
+          aria-label="Kunal Raj LinkedIn Profile">
+          <i class="fa-brands fa-linkedin" aria-hidden="true"></i> LinkedIn
+          </a>
+        </div>
+        </div>
+      </div>
+      </section>
+
+      <section class="footer-contact">
+      <h4>CONTACT</h4>
+      <ul>
+        <li>
+        <a href="mailto:cipher.team.1007@gmail.com" class="footer-email-link">
+          cipher.team.1007@gmail.com
+        </a>
+        </li>
+      </ul>
+      </section>
+    </div>
+    </div>
+
+    <!-- FOOTER BOTTOM BAR -->
+    <div class="footer-bottom">
+    <div>&copy; 2026 CodeLoom &middot; Built by RECURSION</div>
+    <div class="footer-version-tag">v1.0.0</div>
+    </div>
+  </div>
+  </footer>
+
+  <script src="script.js?v=2026081204"></script>
+</body>
+
+</html>
+

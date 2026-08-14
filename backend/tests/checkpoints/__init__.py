@@ -1,0 +1,3 @@
+"""
+Tests checkpoints package init.
+"""

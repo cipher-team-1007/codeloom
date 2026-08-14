@@ -1,0 +1,102 @@
+[
+  {
+  "ruleId": "button-name",
+  "impact": "critical",
+  "htmlSnippets": [
+    "<button class=\"btn-primary\"><i class=\"icon-star\"></i></button>"
+  ],
+  "selectors": [
+    ".btn-primary"
+  ],
+  "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+  },
+  {
+  "ruleId": "button-name",
+  "impact": "critical",
+  "htmlSnippets": [
+    "<button class=\"btn-secondary\"><i class=\"icon-heart\"></i></button>"
+  ],
+  "selectors": [
+    ".btn-secondary"
+  ],
+  "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+  },
+  {
+  "ruleId": "image-alt",
+  "impact": "critical",
+  "htmlSnippets": [
+    "<img class=\"product-image\" src=\"/placeholder1.jpg\">"
+  ],
+  "selectors": [
+    "img[src$=\"placeholder1.jpg\"]"
+  ],
+  "failureSummary": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+  },
+  {
+  "ruleId": "image-alt",
+  "impact": "critical",
+  "htmlSnippets": [
+    "<img class=\"product-image\" src=\"/gallery1.jpg\">"
+  ],
+  "selectors": [
+    "img[src$=\"gallery1.jpg\"]"
+  ],
+  "failureSummary": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+  },
+  {
+  "ruleId": "image-alt",
+  "impact": "critical",
+  "htmlSnippets": [
+    "<img class=\"product-image\" src=\"/gallery2.jpg\">"
+  ],
+  "selectors": [
+    "img[src$=\"gallery2.jpg\"]"
+  ],
+  "failureSummary": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+  },
+  {
+  "ruleId": "image-alt",
+  "impact": "critical",
+  "htmlSnippets": [
+    "<img class=\"product-image\" src=\"/gallery3.jpg\">"
+  ],
+  "selectors": [
+    "img[src$=\"gallery3.jpg\"]"
+  ],
+  "failureSummary": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+  },
+  {
+  "ruleId": "image-alt",
+  "impact": "critical",
+  "htmlSnippets": [
+    "<img class=\"ambiguous-image\" src=\"/profile.jpg\">"
+  ],
+  "selectors": [
+    "img[src$=\"profile.jpg\"]"
+  ],
+  "failureSummary": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+  },
+  {
+  "ruleId": "image-alt",
+  "impact": "critical",
+  "htmlSnippets": [
+    "<img class=\"ambiguous-image\" src=\"/banner.jpg\">"
+  ],
+  "selectors": [
+    "img[src$=\"banner.jpg\"]"
+  ],
+  "failureSummary": "Fix any of the following:\n  Element does not have an alt attribute\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+  },
+  {
+  "ruleId": "link-name",
+  "impact": "serious",
+  "htmlSnippets": [
+    "<a class=\"link external-link\" href=\"https://example.com\" target=\"_blank\"><span class=\"icon-arrow\"></span></a>"
+  ],
+  "selectors": [
+    "a"
+  ],
+  "failureSummary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+  }
+]
+

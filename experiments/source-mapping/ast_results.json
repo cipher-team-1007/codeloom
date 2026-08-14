@@ -1,0 +1,620 @@
+[
+  {
+  "findingId": "button-name",
+  "snippet": "<button class=\"btn-primary\"><i class=\"icon-star\"></i></button>",
+  "resultType": "MATCH FOUND",
+  "candidates": [
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/PrimaryButton.tsx",
+    "component": "PrimaryButton",
+    "tagName": "button",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "btn-primary"
+      }
+    },
+    "location": {
+      "line": 7,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 2,
+    "signals": [
+      "+ tag match: button",
+      "+ class match: btn-primary"
+    ]
+    }
+  ]
+  },
+  {
+  "findingId": "button-name",
+  "snippet": "<button class=\"btn-secondary\"><i class=\"icon-heart\"></i></button>",
+  "resultType": "MATCH FOUND",
+  "candidates": [
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/SecondaryButton.tsx",
+    "component": "SecondaryButton",
+    "tagName": "button",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "btn-secondary"
+      }
+    },
+    "location": {
+      "line": 7,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 2,
+    "signals": [
+      "+ tag match: button",
+      "+ class match: btn-secondary"
+    ]
+    }
+  ]
+  },
+  {
+  "findingId": "image-alt",
+  "snippet": "<img class=\"product-image\" src=\"/placeholder1.jpg\">",
+  "resultType": "MATCH FOUND",
+  "candidates": [
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/ProductCard.tsx",
+    "component": "ProductCard",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "product-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "image"
+      }
+    },
+    "location": {
+      "line": 7,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 3,
+    "signals": [
+      "+ tag match: img",
+      "+ class match: product-image",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/BannerImage.tsx",
+    "component": "BannerImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "ambiguous-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      }
+    },
+    "location": {
+      "line": 5,
+      "column": 10
+    },
+    "parentTags": [],
+    "score": 1,
+    "signals": [
+      "+ tag match: img",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/CardImage.tsx",
+    "component": "CardImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "card-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      },
+      "data-type": {
+      "type": "dynamic",
+      "value": "type"
+      }
+    },
+    "location": {
+      "line": 9,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 1,
+    "signals": [
+      "+ tag match: img",
+      "+ attribute match: src present"
+    ]
+    }
+  ]
+  },
+  {
+  "findingId": "image-alt",
+  "snippet": "<img class=\"product-image\" src=\"/gallery1.jpg\">",
+  "resultType": "MATCH FOUND",
+  "candidates": [
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/ProductCard.tsx",
+    "component": "ProductCard",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "product-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "image"
+      }
+    },
+    "location": {
+      "line": 7,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 3,
+    "signals": [
+      "+ tag match: img",
+      "+ class match: product-image",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/BannerImage.tsx",
+    "component": "BannerImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "ambiguous-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      }
+    },
+    "location": {
+      "line": 5,
+      "column": 10
+    },
+    "parentTags": [],
+    "score": 1,
+    "signals": [
+      "+ tag match: img",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/CardImage.tsx",
+    "component": "CardImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "card-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      },
+      "data-type": {
+      "type": "dynamic",
+      "value": "type"
+      }
+    },
+    "location": {
+      "line": 9,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 1,
+    "signals": [
+      "+ tag match: img",
+      "+ attribute match: src present"
+    ]
+    }
+  ]
+  },
+  {
+  "findingId": "image-alt",
+  "snippet": "<img class=\"product-image\" src=\"/gallery2.jpg\">",
+  "resultType": "MATCH FOUND",
+  "candidates": [
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/ProductCard.tsx",
+    "component": "ProductCard",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "product-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "image"
+      }
+    },
+    "location": {
+      "line": 7,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 3,
+    "signals": [
+      "+ tag match: img",
+      "+ class match: product-image",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/BannerImage.tsx",
+    "component": "BannerImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "ambiguous-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      }
+    },
+    "location": {
+      "line": 5,
+      "column": 10
+    },
+    "parentTags": [],
+    "score": 1,
+    "signals": [
+      "+ tag match: img",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/CardImage.tsx",
+    "component": "CardImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "card-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      },
+      "data-type": {
+      "type": "dynamic",
+      "value": "type"
+      }
+    },
+    "location": {
+      "line": 9,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 1,
+    "signals": [
+      "+ tag match: img",
+      "+ attribute match: src present"
+    ]
+    }
+  ]
+  },
+  {
+  "findingId": "image-alt",
+  "snippet": "<img class=\"product-image\" src=\"/gallery3.jpg\">",
+  "resultType": "MATCH FOUND",
+  "candidates": [
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/ProductCard.tsx",
+    "component": "ProductCard",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "product-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "image"
+      }
+    },
+    "location": {
+      "line": 7,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 3,
+    "signals": [
+      "+ tag match: img",
+      "+ class match: product-image",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/BannerImage.tsx",
+    "component": "BannerImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "ambiguous-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      }
+    },
+    "location": {
+      "line": 5,
+      "column": 10
+    },
+    "parentTags": [],
+    "score": 1,
+    "signals": [
+      "+ tag match: img",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/CardImage.tsx",
+    "component": "CardImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "card-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      },
+      "data-type": {
+      "type": "dynamic",
+      "value": "type"
+      }
+    },
+    "location": {
+      "line": 9,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 1,
+    "signals": [
+      "+ tag match: img",
+      "+ attribute match: src present"
+    ]
+    }
+  ]
+  },
+  {
+  "findingId": "image-alt",
+  "snippet": "<img class=\"ambiguous-image\" src=\"/profile.jpg\">",
+  "resultType": "AMBIGUOUS",
+  "candidates": [
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/BannerImage.tsx",
+    "component": "BannerImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "ambiguous-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      }
+    },
+    "location": {
+      "line": 5,
+      "column": 10
+    },
+    "parentTags": [],
+    "score": 3,
+    "signals": [
+      "+ tag match: img",
+      "+ class match: ambiguous-image",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/ProfileImage.tsx",
+    "component": "ProfileImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "ambiguous-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      }
+    },
+    "location": {
+      "line": 5,
+      "column": 10
+    },
+    "parentTags": [],
+    "score": 3,
+    "signals": [
+      "+ tag match: img",
+      "+ class match: ambiguous-image",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/CardImage.tsx",
+    "component": "CardImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "card-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      },
+      "data-type": {
+      "type": "dynamic",
+      "value": "type"
+      }
+    },
+    "location": {
+      "line": 9,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 1,
+    "signals": [
+      "+ tag match: img",
+      "+ attribute match: src present"
+    ]
+    }
+  ]
+  },
+  {
+  "findingId": "image-alt",
+  "snippet": "<img class=\"ambiguous-image\" src=\"/banner.jpg\">",
+  "resultType": "AMBIGUOUS",
+  "candidates": [
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/BannerImage.tsx",
+    "component": "BannerImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "ambiguous-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      }
+    },
+    "location": {
+      "line": 5,
+      "column": 10
+    },
+    "parentTags": [],
+    "score": 3,
+    "signals": [
+      "+ tag match: img",
+      "+ class match: ambiguous-image",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/ProfileImage.tsx",
+    "component": "ProfileImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "ambiguous-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      }
+    },
+    "location": {
+      "line": 5,
+      "column": 10
+    },
+    "parentTags": [],
+    "score": 3,
+    "signals": [
+      "+ tag match: img",
+      "+ class match: ambiguous-image",
+      "+ attribute match: src present"
+    ]
+    },
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/CardImage.tsx",
+    "component": "CardImage",
+    "tagName": "img",
+    "attributes": {
+      "className": {
+      "type": "literal",
+      "value": "card-image"
+      },
+      "src": {
+      "type": "dynamic",
+      "value": "src"
+      },
+      "data-type": {
+      "type": "dynamic",
+      "value": "type"
+      }
+    },
+    "location": {
+      "line": 9,
+      "column": 7
+    },
+    "parentTags": [],
+    "score": 1,
+    "signals": [
+      "+ tag match: img",
+      "+ attribute match: src present"
+    ]
+    }
+  ]
+  },
+  {
+  "findingId": "link-name",
+  "snippet": "<a class=\"link external-link\" href=\"https://example.com\" target=\"_blank\"><span class=\"icon-arrow\"></span></a>",
+  "resultType": "MATCH FOUND",
+  "candidates": [
+    {
+    "file": "C:/Users/kunal/Desktop/lexical ai - Copy/experiments/source-mapping/fixture/src/components/DynamicLink.tsx",
+    "component": "DynamicLink",
+    "tagName": "a",
+    "attributes": {
+      "className": {
+      "type": "dynamic",
+      "value": "link"
+      },
+      "href": {
+      "type": "dynamic",
+      "value": "isExternal ? \"https://example.com\" : \"/local\""
+      },
+      "target": {
+      "type": "dynamic",
+      "value": "isExternal ? \"_blank\" : undefined"
+      }
+    },
+    "location": {
+      "line": 6,
+      "column": 5
+    },
+    "parentTags": [],
+    "score": 2,
+    "signals": [
+      "+ tag match: a",
+      "+ class match: link",
+      "+ matched dynamic class structure"
+    ]
+    }
+  ]
+  }
+]
+

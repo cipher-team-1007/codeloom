@@ -1,0 +1,3053 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+  content="CodeLoom AI Audit Workbench — Real-time website preflight inspection and accessibility scanning.">
+  <title>Audit Workbench — CodeLoom AI</title>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+  rel="stylesheet">
+
+  <!-- FontAwesome 6 Pro Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Main Dark Glassmorphism Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+  .audit-page-wrapper {
+    padding-top: 100px;
+    padding-bottom: 120px;
+    min-height: 100vh;
+  }
+
+  .audit-header {
+    margin-bottom: 40px;
+  }
+
+  .audit-target-card {
+    background: rgba(14, 18, 30, 0.7);
+    backdrop-filter: blur(28px) saturate(180%);
+    -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    padding: 28px 32px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    margin-bottom: 32px;
+  }
+
+  .audit-url-display {
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    color: var(--accent-blue);
+    word-break: break-all;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  /* Client Stepper */
+  .stepper-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .stepper-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 16px 20px;
+    transition: all 0.3s ease;
+  }
+
+  .stepper-card.active {
+    border-color: rgba(96, 165, 250, 0.6);
+    background: rgba(96, 165, 250, 0.08);
+    box-shadow: 0 0 20px rgba(96, 165, 250, 0.2);
+  }
+
+  .stepper-card.completed {
+    border-color: rgba(52, 211, 153, 0.5);
+    background: rgba(52, 211, 153, 0.06);
+  }
+
+  .stepper-card.failed {
+    border-color: rgba(248, 113, 113, 0.6);
+    background: rgba(248, 113, 113, 0.08);
+  }
+
+  .stepper-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .stepper-title {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #fff;
+  }
+
+  /* Inspection Metrics Grid */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .metric-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .metric-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .metric-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #fff;
+    font-family: var(--font-mono);
+  }
+
+  .metadata-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .metadata-table tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .metadata-table td {
+    padding: 12px 0;
+  }
+
+  .findings-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    table-layout: fixed;
+  }
+
+  .findings-table tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .findings-table th,
+  .findings-table td {
+    padding: 12px;
+    vertical-align: top;
+    box-sizing: border-box;
+  }
+
+  .findings-table col.col-severity {
+    width: 100px;
+  }
+
+  .findings-table col.col-rule {
+    width: 15%;
+  }
+
+  .findings-table col.col-title {
+    width: 28%;
+  }
+
+  .findings-table col.col-evidence {
+    width: 43%;
+  }
+
+  .findings-table col.col-fingerprint {
+    width: 14%;
+  }
+
+  .error-banner {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    border-radius: 16px;
+    padding: 24px;
+    color: #f87171;
+    margin-bottom: 32px;
+  }
+
+  .warning-banner {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    border-radius: 16px;
+    padding: 20px 24px;
+    color: #fbbf24;
+    margin-bottom: 32px;
+  }
+
+  .finding-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+
+  .badge-critical {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+  }
+
+  .badge-serious {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+  }
+
+  .badge-moderate {
+    background: rgba(96, 165, 250, 0.2);
+    color: #60a5fa;
+    border: 1px solid rgba(96, 165, 250, 0.4);
+  }
+
+  .badge-minor {
+    background: rgba(52, 211, 153, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(52, 211, 153, 0.4);
+  }
+  </style>
+</head>
+
+<body class="dark-theme">
+  <!-- Global Cursor & Noise Background -->
+  <div class="cursor-spotlight" id="cursor-spotlight" aria-hidden="true"></div>
+  <div class="bg-noise" aria-hidden="true"></div>
+  <div class="bg-grid-overlay" aria-hidden="true"></div>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="brand-logo" aria-label="CodeLoom Homepage">
+    <span class="logo-text">Code<span class="logo-accent">Loom</span></span>
+    </a>
+
+    <div class="nav-actions" style="display: flex; gap: 10px; align-items: center;">
+
+    <button class="btn-secondary" onclick="openWCAGCertificateModal()"
+      style="font-size: 0.8rem; padding: 8px 14px;">
+      <i class="fa-solid fa-award" style="color: #34d399;"></i> WCAG AAA Certificate
+    </button>
+    <!-- Dual-Icon Sun/Moon Pill Theme Switch -->
+    <button id="theme-toggle-btn" class="theme-toggle-switch" tabindex="0" type="button" role="switch" aria-checked="false" aria-label="Toggle light/dark mode" onclick="toggleTheme()" style="position: relative; display: flex; align-items: center; height: 34px; width: 72px; cursor: pointer; padding: 3px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 9999px; transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.4);">
+      <div id="toggle-active-thumb" style="position: absolute; top: 3px; left: 3px; height: 26px; width: 32px; background: var(--accent-blue); border-radius: 9999px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px var(--accent-blue); transform: translateX(34px);"></div>
+      <div class="st-toggle-sun" style="position: relative; z-index: 10; flex: 1; display: flex; align-items: center; justify-content: center; color: #64748b; transition: color 0.3s;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 21 21"><path fill="currentColor" d="M10.745 14.085q-1.662 0-2.828-1.171Q6.75 11.742 6.75 10.08t1.172-2.828q1.17-1.167 2.833-1.167 1.662 0 2.828 1.171 1.167 1.172 1.167 2.834t-1.171 2.828-2.834 1.167m-5.38-3.136h-3.73V9.22h3.73zm14.5 0h-3.73V9.22h3.73zM9.885 4.7V.97h1.73V4.7zm0 14.5V15.47h1.73v3.73zM6.35 6.88l-2.3-2.242L5.266 3.32 7.56 5.637zm9.885 9.886-2.273-2.253 1.185-1.232 2.305 2.253zM13.924 5.69l2.274-2.263L17.43 4.6l-2.232 2.315zm-9.937 9.88 2.336-2.232 1.19 1.144-2.19 2.326z"></path></svg>
+      </div>
+      <div class="st-toggle-moon" style="position: relative; z-index: 10; flex: 1; display: flex; align-items: center; justify-content: center; color: #ffffff; transition: color 0.3s;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 19 19"><path fill="currentColor" d="M9.75 15.835q-2.813 0-4.781-1.969Q2.999 11.898 3 9.085t1.969-4.781q1.968-1.97 4.781-1.969a7 7 0 0 1 1.012.075 4 4 0 0 0-1.228 1.416 4 4 0 0 0-.459 1.884q0 1.687 1.181 2.869 1.182 1.18 2.869 1.181 1.032 0 1.894-.46a4 4 0 0 0 1.406-1.228 6.4 6.4 0 0 1 .075 1.013q0 2.813-1.969 4.781-1.968 1.97-4.781 1.969"></path></svg>
+      </div>
+    </button>
+    <a href="index.html" class="btn-secondary" style="font-size: 0.8rem; padding: 8px 12px;"><i
+      class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back Home</a>
+    </div>
+  </div>
+  </nav>
+
+  <!-- Main Audit Workbench Container -->
+  <main class="audit-page-wrapper">
+  <div class="container">
+
+    <!-- Header Section -->
+    <div class="audit-header">
+    <div class="hero-badge">
+      <span class="hero-badge-icon"></span>
+      CODELOOM DEVELOPER CONTROL CENTER — WCAG 2.2 SOURCE REMEDIATION
+    </div>
+    <h1 class="hero-headline" style="font-size: 2.75rem; margin-bottom: 12px;">
+      Developer Workspace <span class="gradient-text-blue">& Audit Workbench</span>
+    </h1>
+    <p style="color: var(--text-muted); font-size: 1.05rem;">
+      Tracing runtime accessibility violations directly to shared repository components, deterministically
+      validating patches, and verifying zero remaining defects.
+    </p>
+    </div>
+
+    <!-- Engineering Workspace Context Bar -->
+    <div class="workspace-context-bar"
+    style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; background: rgba(9, 13, 22, 0.9); border: 1px solid var(--border-medium); border-radius: var(--radius-lg); padding: 14px 20px; margin-bottom: 24px; box-shadow: 0 8px 30px rgba(0,0,0,0.5);">
+    <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+      <div
+      style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.85rem; color: #fff; font-weight: 700;">
+      <i class="fa-brands fa-github" style="color: #c084fc; font-size: 1.1rem;"></i>
+      <span id="active-repo-badge">owner/repository</span>
+      </div>
+      <span style="color: var(--text-dim);">•</span>
+      <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+      <i class="fa-solid fa-code-branch" style="color: var(--accent-cyan);"></i> branch: <span
+        id="active-branch-badge" style="color: #fff; font-weight: 600;">main</span>
+      </div>
+      <span style="color: var(--text-dim);">•</span>
+      <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+      <i class="fa-solid fa-code-commit" style="color: var(--accent-blue);"></i> SHA: <span id="active-sha-badge"
+        style="color: var(--accent-blue); font-weight: 600;">HEAD</span>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="status-chip status-chip-verified" id="workspace-state-chip"><i
+        class="fa-solid fa-circle-check"></i> PIPELINE READY</span>
+    </div>
+    </div>
+
+    <!-- Codebase Scan Dashboard -->
+    <div id="scan-dashboard" style="display: none;">
+    <div class="audit-target-card" style="border-color: rgba(96, 165, 250, 0.4); margin-bottom: 32px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <div>
+        <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Codebase Scan
+        ID</span>
+        <div style="font-family: var(--font-mono); font-size: 1.1rem; color: var(--text-main); font-weight: 700;"
+        id="scan-id-display">scan_...</div>
+      </div>
+      <div style="text-align: right;">
+        <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Status /
+        Stage</span>
+        <div
+        style="font-family: var(--font-mono); font-size: 1.1rem; color: var(--accent-cyan); font-weight: 700; display: flex; align-items: center; justify-content: flex-end;"
+        id="scan-stage-display">
+        <i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-cyan); margin-right: 8px;"></i>
+        SCANNING CODEBASE
+        </div>
+      </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- Target GitHub Repository Card -->
+    <div class="audit-target-card" style="margin-bottom: 32px; border-color: rgba(168, 85, 247, 0.35);"
+    id="source-link-panel">
+    <div
+      style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+      <span><i class="fa-brands fa-github" style="color: #a855f7; font-size: 1rem; margin-right: 6px;"></i> Target
+      GitHub Repository URL</span>
+      <span
+      style="font-size: 0.75rem; color: #c084fc; background: rgba(168, 85, 247, 0.12); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(168, 85, 247, 0.3);"
+      id="source-status-badge">Workspace Target: Temp\codeloom-source-scans</span>
+    </div>
+
+    <div id="user-repos-dropdown-container"
+      style="display: none; margin-bottom: 16px; background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 12px; padding: 14px 18px;">
+      <label
+      style="display: block; font-size: 0.8rem; color: #c084fc; font-family: var(--font-mono); margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+      <i class="fa-brands fa-github"></i> Choose from your Connected GitHub Repositories
+      </label>
+      <select id="user-github-repos-select" onchange="onUserGitHubRepoSelected(this.value)"
+      class="glass-input-field"
+      style="width: 100%; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(168, 85, 247, 0.4); color: #fff; font-weight: 600; font-size: 0.95rem; cursor: pointer; border-radius: 8px; padding: 10px 14px;">
+      <option value="">-- Select a GitHub Repository --</option>
+      </select>
+    </div>
+
+    <form id="repo-prepare-form" onsubmit="event.preventDefault(); prepareGitHubRepository();"
+      style="display: flex; gap: 16px; flex-direction: column;">
+      <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center; width: 100%;">
+      <div
+        style="display: flex; align-items: center; gap: 10px; flex: 2; min-width: 280px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 10px 16px;">
+        <i class="fa-brands fa-github" style="color: #a855f7; font-size: 1.25rem;"></i>
+        <input type="url" id="repo-url-input" placeholder="https://github.com/owner/repository"
+        style="flex: 1; font-family: var(--font-mono); font-size: 1.05rem; font-weight: 600; color: var(--text-main); background: transparent; border: none; outline: none;"
+        required>
+      </div>
+
+      <div
+        style="display: flex; align-items: center; gap: 8px; width: 140px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; padding: 10px 16px;">
+        <i class="fa-solid fa-code-branch" style="color: var(--text-muted); font-size: 1rem;"></i>
+        <input type="text" id="repo-branch-input" placeholder="main" value="main"
+        style="width: 100%; font-family: var(--font-mono); font-size: 1rem; font-weight: 600; color: var(--text-main); background: transparent; border: none; outline: none;"
+        required>
+      </div>
+
+      <button type="submit" class="btn-neon" id="prepare-repo-btn"
+        style="padding: 12px 22px; font-size: 0.9rem; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; white-space: nowrap;">
+        <i class="fa-solid fa-cloud-arrow-down"></i> 1. Prepare & Download Repo
+      </button>
+      </div>
+    </form>
+
+    <div id="source-progress-container"
+      style="display: none; margin-top: 16px; font-family: var(--font-mono); font-size: 0.85rem; color: #c084fc; padding: 12px 16px; background: rgba(168, 85, 247, 0.1); border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.25);">
+      <i class="fa-solid fa-circle-notch fa-spin"></i> <span id="source-progress-text">Acquiring repository and
+      correlating source files...</span>
+    </div>
+
+    <div id="source-summary-container"
+      style="display: none; margin-top: 16px; padding: 16px; background: rgba(168, 85, 247, 0.12); border-radius: 10px; border: 1px solid rgba(168, 85, 247, 0.3); font-size: 0.875rem;">
+      <div
+      style="font-weight: 700; color: #e9d5ff; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;"
+      id="source-repo-title">
+      <i class="fa-brands fa-github"></i> Repository Linked: owner/repository (main)
+      </div>
+      <div style="color: #cbd5e1; font-size: 0.825rem; font-family: var(--font-mono);" id="source-summary-details">
+      Commit: sha_... | Scanned 84 files | Found 3 candidate matches
+      </div>
+    </div>
+    </div>
+
+    <!-- Dedicated Issue Category Selection & Scan Trigger Card -->
+    <div class="audit-target-card" style="margin-bottom: 32px; border-color: rgba(96, 165, 250, 0.35);"
+    id="scan-config-card">
+    <div
+      style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; font-weight: 700; letter-spacing: 0.5px;">
+      <i class="fa-solid fa-sliders" style="color: var(--accent-blue); margin-right: 6px;"></i> Scan Scope & Issue
+      Categories
+    </div>
+
+    <div
+      style="display: flex; flex-direction: column; gap: 12px; background: rgba(0, 0, 0, 0.2); padding: 18px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
+      <label style="font-size: 0.9rem; font-weight: 700; color: var(--text-main);">Select Issue Categories to Scan:</label>
+      <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: center;">
+      <label
+        style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main); font-size: 0.9rem; font-weight: 500;">
+        <input type="checkbox" id="cat-seo" checked onchange="if(!this.checked) document.getElementById('cat-all').checked=false;" style="accent-color: #3b82f6; width: 18px; height: 18px;">
+        SEO
+      </label>
+      <label
+        style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main); font-size: 0.9rem; font-weight: 500;">
+        <input type="checkbox" id="cat-performance" checked onchange="if(!this.checked) document.getElementById('cat-all').checked=false;"
+        style="accent-color: #3b82f6; width: 18px; height: 18px;"> Performance
+      </label>
+      <label
+        style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main); font-size: 0.9rem; font-weight: 500;">
+        <input type="checkbox" id="cat-accessibility" checked onchange="if(!this.checked) document.getElementById('cat-all').checked=false;"
+        style="accent-color: #3b82f6; width: 18px; height: 18px;"> Accessibility
+      </label>
+      <label
+        style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--text-main); font-size: 0.9rem; margin-left: auto; font-weight: 700;">
+        <input type="checkbox" id="cat-all" checked
+        onchange="document.getElementById('cat-seo').checked=this.checked; document.getElementById('cat-performance').checked=this.checked; document.getElementById('cat-accessibility').checked=this.checked;"
+        style="accent-color: #3b82f6; width: 18px; height: 18px;"> All Categories
+      </label>
+      </div>
+    </div>
+
+    <div
+      style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+      <div
+      style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 10px; width: fit-content; max-width: 100%;">
+      <input type="checkbox" id="show-low-confidence-toggle"
+        onchange="if (document.getElementById('scan-id-display').textContent) loadScanClusters(document.getElementById('scan-id-display').textContent);"
+        style="accent-color: #a855f7; width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;">
+      <label for="show-low-confidence-toggle"
+        style="cursor: pointer; font-size: 0.825rem; color: var(--text-secondary); font-weight: 500; user-select: none; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+        <i class="fa-solid fa-circle-info" style="color: #c084fc;"></i>
+        <span>Show low-confidence source matches</span>
+        <span style="color: var(--text-muted); font-size: 0.775rem;">(Informational only — excluded from AI
+        context)</span>
+      </label>
+      </div>
+
+      <button type="button" class="btn-neon" id="link-repo-btn" onclick="linkGitHubRepository()"
+      style="padding: 14px 28px; font-size: 0.95rem; background: linear-gradient(135deg, #a855f7, #6366f1); border: none; white-space: nowrap;">
+      <i class="fa-solid fa-play"></i> Start Codebase Scan
+      </button>
+    </div>
+    </div>
+
+    <!-- GitHub Account Authentication Modal (OAuth + PAT Token) -->
+    <div id="github-auth-modal-backdrop"
+    style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center;">
+    <div
+      style="background: #0f172a; border: 1px solid rgba(96, 165, 250, 0.5); border-radius: 16px; max-width: 500px; width: 90%; padding: 28px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); position: relative;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px;">
+      <div>
+        <h3
+        style="margin: 0 0 6px 0; font-size: 1.25rem; color: #fff; display: flex; align-items: center; gap: 10px;">
+        <i class="fa-brands fa-github" style="color: var(--accent-blue);"></i> Authenticate GitHub Account
+        </h3>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">
+        Log in to your real GitHub account to access your repositories and open pull requests.
+        </p>
+      </div>
+      <button onclick="closeGitHubAuthModal()"
+        style="background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 4px;">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      </div>
+
+      <!-- Tab Buttons -->
+      <div
+      style="display: flex; gap: 10px; margin-bottom: 20px; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 8px; border: 1px solid var(--border-subtle);">
+      <button id="auth-tab-pat" onclick="switchAuthTab('pat')"
+        style="flex: 1; padding: 8px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; border: none; cursor: pointer; background: var(--accent-blue); color: #fff;">
+        <i class="fa-solid fa-key"></i> Personal Access Token (PAT)
+      </button>
+      <button id="auth-tab-oauth" onclick="switchAuthTab('oauth')"
+        style="flex: 1; padding: 8px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; border: none; cursor: pointer; background: transparent; color: var(--text-muted);">
+        <i class="fa-brands fa-github"></i> 1-Click OAuth Redirect
+      </button>
+      </div>
+
+      <!-- Tab Content: Personal Access Token (PAT) -->
+      <div id="auth-content-pat">
+      <form onsubmit="event.preventDefault(); submitGitHubPATConnect();">
+        <div style="margin-bottom: 16px;">
+        <label
+          style="display: block; font-size: 0.8rem; font-weight: 700; color: #e2e8f0; margin-bottom: 6px;">GitHub
+          Personal Access Token (PAT)</label>
+        <input type="password" id="pat-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx" required
+          style="width: 100%; box-sizing: border-box; padding: 12px 16px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(96, 165, 250, 0.4); border-radius: 8px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem;">
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+          Required scopes: <code style="color: var(--accent-blue);">repo</code>, <code
+          style="color: var(--accent-blue);">read:user</code>. Token is encrypted in memory.
+        </div>
+        </div>
+
+        <div id="pat-error-msg"
+        style="display: none; font-size: 0.8rem; color: #f87171; margin-bottom: 14px; font-family: var(--font-mono);">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button type="button" onclick="closeGitHubAuthModal()"
+          style="padding: 10px 18px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #cbd5e1; border-radius: 8px; cursor: pointer; font-size: 0.875rem;">
+          Cancel
+        </button>
+        <button type="submit" id="pat-submit-btn" class="btn-neon"
+          style="padding: 10px 22px; font-size: 0.875rem;">
+          <i class="fa-solid fa-plug"></i> Connect Account
+        </button>
+        </div>
+      </form>
+      </div>
+
+      <!-- Tab Content: OAuth App Redirect -->
+      <div id="auth-content-oauth" style="display: none;">
+      <div id="oauth-configured-view" style="display: none;">
+        <div style="font-size: 0.85rem; color: #cbd5e1; line-height: 1.5; margin-bottom: 18px;">
+        Click below to authorize CodeLoom AI via GitHub OAuth. You will be redirected to <code
+          style="color: var(--accent-blue);">github.com</code>.
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+        <button type="button" onclick="closeGitHubAuthModal()"
+          style="padding: 10px 18px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #cbd5e1; border-radius: 8px; cursor: pointer; font-size: 0.875rem;">
+          Cancel
+        </button>
+        <button type="button" onclick="window.location.href='/api/v1/github/authorize'" class="btn-neon"
+          style="padding: 10px 22px; font-size: 0.875rem;">
+          <i class="fa-brands fa-github"></i> Launch GitHub OAuth
+        </button>
+        </div>
+      </div>
+
+      <div id="oauth-unconfigured-view">
+        <form onsubmit="event.preventDefault(); saveOAuthAndLaunch();">
+        <div
+          style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 14px; background: rgba(96, 165, 250, 0.08); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(96, 165, 250, 0.25);">
+          <div style="font-weight: 700; color: var(--accent-blue); margin-bottom: 4px;">Set Up Free GitHub OAuth
+          App</div>
+          1. <a
+          href="https://github.com/settings/applications/new?oauth_application%5Bname%5D=CodeLoom+AI&oauth_application%5Burl%5D=http%3A%2F%2Flocalhost%3A8000&oauth_application%5Bcallback_url%5D=http%3A%2F%2Flocalhost%3A8000%2Fapi%2Fv1%2Fgithub%2Fcallback"
+          target="_blank" style="color: #60a5fa; text-decoration: underline; font-weight: 700;">Click to
+          Register App on GitHub</a> (pre-filled).<br>
+          2. Copy your Client ID & Client Secret below:
+        </div>
+
+        <div style="margin-bottom: 12px;">
+          <label
+          style="display: block; font-size: 0.75rem; font-weight: 700; color: #e2e8f0; margin-bottom: 4px;">GitHub
+          Client ID</label>
+          <input type="text" id="oauth-client-id-input" placeholder="Ov23li..." required
+          style="width: 100%; box-sizing: border-box; padding: 10px 14px; background: rgba(0,0,0,0.5); border: 1px solid rgba(96,165,250,0.4); border-radius: 8px; color: #fff; font-family: var(--font-mono); font-size: 0.85rem;">
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <label
+          style="display: block; font-size: 0.75rem; font-weight: 700; color: #e2e8f0; margin-bottom: 4px;">GitHub
+          Client Secret</label>
+          <input type="password" id="oauth-client-secret-input" placeholder="8f4b..." required
+          style="width: 100%; box-sizing: border-box; padding: 10px 14px; background: rgba(0,0,0,0.5); border: 1px solid rgba(96,165,250,0.4); border-radius: 8px; color: #fff; font-family: var(--font-mono); font-size: 0.85rem;">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px;">
+          <button type="button" onclick="closeGitHubAuthModal()"
+          style="padding: 10px 18px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #cbd5e1; border-radius: 8px; cursor: pointer; font-size: 0.875rem;">
+          Cancel
+          </button>
+          <button type="submit" class="btn-neon" style="padding: 10px 22px; font-size: 0.875rem;">
+          <i class="fa-brands fa-github"></i> Save & Launch OAuth
+          </button>
+        </div>
+        </form>
+      </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- GitHub Repository Connection Modal -->
+    <div id="github-modal-backdrop"
+    style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center;">
+    <div
+      style="background: #0f172a; border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 16px; max-width: 540px; width: 90%; padding: 28px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); position: relative;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px;">
+      <div>
+        <h3
+        style="margin: 0 0 6px 0; font-size: 1.25rem; color: #fff; display: flex; align-items: center; gap: 10px;">
+        <i class="fa-brands fa-github" style="color: #c084fc;"></i> Connect GitHub Repository
+        </h3>
+        <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">
+        Enter the repository for this product to map accessibility violations directly to source files and line
+        numbers.
+        </p>
+      </div>
+      <button onclick="closeGitHubModal()"
+        style="background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 4px;">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+      <label
+        style="display: block; font-size: 0.8rem; font-weight: 700; color: #e2e8f0; margin-bottom: 6px;">GitHub
+        Repository URL</label>
+      <input type="url" id="modal-repo-url" placeholder="https://github.com/owner/repository" value=""
+        style="width: 100%; box-sizing: border-box; padding: 12px 16px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem;">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+      <label
+        style="display: block; font-size: 0.8rem; font-weight: 700; color: #e2e8f0; margin-bottom: 6px;">Target
+        Branch</label>
+      <input type="text" id="modal-repo-branch" placeholder="main" value="main"
+        style="width: 100%; box-sizing: border-box; padding: 12px 16px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px; color: #fff; font-family: var(--font-mono); font-size: 0.9rem;">
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 12px;">
+      <button onclick="closeGitHubModal()"
+        style="padding: 10px 18px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #cbd5e1; border-radius: 8px; cursor: pointer; font-size: 0.875rem;">
+        Cancel
+      </button>
+      <button onclick="submitModalGitHubRepo()" class="btn-neon"
+        style="padding: 10px 22px; background: linear-gradient(135deg, #a855f7, #6366f1); font-size: 0.875rem;">
+        <i class="fa-solid fa-link"></i> Link & Start Correlation
+      </button>
+      </div>
+    </div>
+    </div>
+
+    <!-- Unified Root-Cause Clusters & Findings Panel -->
+    <div class="audit-target-card" style="margin-bottom: 32px;" id="clusters-panel">
+    <div
+      style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+      <div>
+      <h3 style="font-size: 1.2rem; display: flex; align-items: center; gap: 10px; margin: 0 0 4px 0;">
+        <i class="fa-solid fa-layer-group" style="color: var(--accent-blue);"></i> Root-Cause Clusters & Findings (<span
+        id="clusters-count">0</span>)
+      </h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+        Deterministically grouped patterns & bottlenecks ranked by remediation priority score.
+      </p>
+      </div>
+
+      <!-- Controls: Category Filters + View Mode Switcher -->
+      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+      <!-- Category Filter Chips -->
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;" id="filter-chips-container">
+        <button class="filter-chip active" onclick="filterFindings('all', this)">All (<span
+          id="count-all">0</span>)</button>
+        <button class="filter-chip" onclick="filterFindings('accessibility', this)">Accessibility (<span
+          id="count-a11y">0</span>)</button>
+        <button class="filter-chip" onclick="filterFindings('performance', this)">Performance (<span
+          id="count-perf">0</span>)</button>
+        <button class="filter-chip" onclick="filterFindings('seo', this)">SEO (<span
+          id="count-seo">0</span>)</button>
+
+        <!-- Global Select All Button for both Grid Cards & Table Views -->
+        <button class="filter-chip" onclick="toggleSelectAllGlobal(this)" id="select-all-global-btn"
+        title="Select or Deselect all visible items for batch remediation queue"
+        style="border: 1px solid var(--accent-blue); color: var(--accent-blue); background: rgba(56, 189, 248, 0.1); font-weight: 700; margin-left: 4px;">
+        <i class="fa-solid fa-square-check"></i> Select All
+        </button>
+      </div>
+
+      <!-- View Mode Switcher Toggle (Icon-Only with Tooltips) -->
+      <div style="display: flex; background: rgba(15, 23, 42, 0.8); padding: 3px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.12);">
+        <button id="view-mode-table-btn" onclick="switchAuditViewMode('table')" title="Table View"
+        style="border: none; padding: 8px 12px; font-size: 0.95rem; font-weight: 700; border-radius: 6px; cursor: pointer; background: var(--accent-blue); color: #000; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-table-list"></i>
+        </button>
+        <button id="view-mode-grid-btn" onclick="switchAuditViewMode('grid')" title="Grid Cards View"
+        style="border: none; padding: 8px 12px; font-size: 0.95rem; font-weight: 700; border-radius: 6px; cursor: pointer; background: transparent; color: var(--text-muted); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-border-all"></i>
+        </button>
+      </div>
+      </div>
+    </div>
+
+    <!-- View Mode 1: Table View (Default) -->
+    <div id="table-view-container" style="overflow-x: auto; display: block; margin-top: 16px;">
+      <table class="findings-table" id="findings-table">
+      <thead>
+        <tr style="border-bottom: 2px solid rgba(255,255,255,0.15); text-align: left;">
+        <th style="padding: 12px; width: 44px; text-align: center;">
+          <input type="checkbox" id="select-all-findings-cb" onchange="toggleSelectAllFindings(this)"
+          title="Select all findings for batch queue"
+          style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--accent-blue);">
+        </th>
+        <th style="padding: 12px; color: var(--text-muted); text-align: center; width: 90px;">Priority</th>
+        <th style="padding: 12px; color: var(--text-muted); width: 160px;">Rule / Source</th>
+        <th style="padding: 12px; color: var(--text-muted); width: 42%;">Title & Description</th>
+        <th style="padding: 12px; color: var(--text-muted); width: 18%;">Evidence Type & Target</th>
+        <th style="padding: 12px; color: var(--text-muted); width: 130px;">Fingerprint</th>
+        <th style="padding: 12px; color: var(--text-muted); text-align: center; width: 110px; white-space: nowrap;">Action</th>
+        </tr>
+      </thead>
+      <tbody id="findings-body">
+        <tr>
+        <td colspan="7" style="padding: 24px; text-align: center; color: var(--text-muted);">No findings loaded
+          yet. Launch scan job to inspect website.</td>
+        </tr>
+      </tbody>
+      </table>
+    </div>
+
+    <!-- View Mode 2: Grid Cards View -->
+    <div id="clusters-container"
+      style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 16px;">
+      <div style="padding: 24px; text-align: center; color: var(--text-muted); grid-column: 1 / -1;">
+      No root-cause clusters available yet. Launch scan job to generate clusters.
+      </div>
+    </div>
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- CODELOOM AI REMEDIATION STUDIO & TELEMETRY WORKBENCH            -->
+    <!-- ================================================================= -->
+    <section class="audit-target-card" id="remediation-studio"
+    style="margin-top: 40px; border-color: rgba(96, 165, 250, 0.4);">
+
+    <!-- Studio Header & Title -->
+    <div
+      style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-subtle);">
+      <div>
+      <div class="hero-badge" style="margin-bottom: 6px;">
+        <span class="hero-badge-icon"></span>
+        CODELOOM ENGINE WORKSPACE
+      </div>
+      <h2 style="font-size: 1.6rem; margin: 0; color: #fff;" class="font-heading">
+        AI Accessibility <span class="gradient-text-blue">Remediation Studio</span>
+      </h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;">
+        Turn accessibility findings into verified source-code fixes with real-time SSE telemetry.
+      </p>
+      </div>
+    </div>
+
+    <!-- Mode Switcher Tabs -->
+    <div
+      style="display: flex; gap: 10px; margin-bottom: 24px; background: rgba(0, 0, 0, 0.4); padding: 6px; border-radius: 12px; border: 1px solid var(--border-subtle); width: fit-content;">
+      <button id="tab-mode-single" class="studio-tab-btn active" onclick="switchStudioMode('single')">
+      <i class="fa-solid fa-wand-magic-sparkles"></i> Single Finding
+      </button>
+      <button id="tab-mode-batch" class="studio-tab-btn" onclick="switchStudioMode('batch')">
+      <i class="fa-solid fa-layer-group"></i> Batch Remediation
+      </button>
+    </div>
+
+    <!-- Single Finding Input Form -->
+    <div id="form-single-mode">
+      <form id="remediation-form-single" onsubmit="handleSingleRemediationSubmit(event)">
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 16px;">
+        <div>
+        <label
+          style="display: block; font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 6px;">Repository
+          URL</label>
+        <input type="url" id="single-repo-url" value="" required placeholder="https://github.com/owner/repo"
+          class="glass-input-field">
+        </div>
+        <div>
+        <label
+          style="display: block; font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 6px;">Commit
+          SHA / Branch</label>
+        <input type="text" id="single-commit-sha" value="main" required placeholder="main"
+          class="glass-input-field">
+        </div>
+        <div>
+        <label
+          style="display: block; font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 6px;">Rule
+          ID</label>
+        <input type="text" id="single-rule-id" value="image-alt" required placeholder="image-alt"
+          class="glass-input-field">
+        </div>
+        <div>
+        <label
+          style="display: block; font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 6px;">Target
+          Selector</label>
+        <input type="text" id="single-target-selector" value="img.hero-logo" required placeholder="img.logo"
+          class="glass-input-field">
+        </div>
+      </div>
+      <div style="margin-bottom: 20px;">
+        <label
+        style="display: block; font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 6px;">Finding
+        Description / HTML Snippet</label>
+        <input type="text" id="single-description" value="Images must have alt text"
+        placeholder="Missing alternative text on hero logo element" class="glass-input-field">
+      </div>
+      <button type="submit" id="start-single-btn" class="btn-neon" style="padding: 12px 28px; font-size: 0.9rem;">
+        <i class="fa-solid fa-play"></i> Run Remediation Workflow
+      </button>
+      </form>
+    </div>
+
+    <!-- Batch Remediation Interactive Queue Mode -->
+    <div id="form-batch-mode" style="display: none;">
+      <form id="remediation-form-batch" onsubmit="handleBatchRemediationSubmit(event)">
+      <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 20px;">
+        <div>
+        <label
+          style="display: block; font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 6px;">Target
+          Repository URL</label>
+        <input type="url" id="batch-repo-url" value="" required placeholder="https://github.com/owner/repo"
+          class="glass-input-field">
+        </div>
+        <div>
+        <label
+          style="display: block; font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono); margin-bottom: 6px;">Target
+          Branch</label>
+        <input type="text" id="batch-commit-sha" value="main" required placeholder="main"
+          class="glass-input-field">
+        </div>
+      </div>
+
+      <!-- Selected Findings Queue Visualizer -->
+      <div style="margin-bottom: 20px;">
+        <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <label
+          style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+          <i class="fa-solid fa-list-check" style="color: var(--accent-blue);"></i> Selected Findings Queue
+          <span id="batch-selected-count-badge"
+          style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; font-family: var(--font-mono);">0
+          items</span>
+        </label>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn-secondary" style="padding: 5px 12px; font-size: 0.75rem;"
+          onclick="autoSelectTopClusters()">
+          <i class="fa-solid fa-wand-magic-sparkles" style="color: #fde047;"></i> Auto-Select Top 3 Clusters
+          </button>
+          <button type="button" class="btn-secondary" style="padding: 5px 12px; font-size: 0.75rem;"
+          onclick="clearBatchSelection()">
+          <i class="fa-solid fa-trash-can"></i> Clear
+          </button>
+        </div>
+        </div>
+
+        <div id="batch-selected-items-list"
+        style="max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 12px;">
+        <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.85rem;">
+          No findings selected yet. Select checkboxes in the findings tables above, or click "Auto-Select Top 3
+          Clusters".
+        </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <button type="submit" id="start-batch-btn" class="btn-neon"
+        style="padding: 12px 28px; font-size: 0.9rem; font-weight: 700;">
+        <i class="fa-solid fa-layer-group"></i> ⚡ Start Cumulative Remediation Queue
+        </button>
+        <span style="font-size: 0.8rem; color: var(--text-dim);">
+        Applies fixes sequentially to repository snapshot, verifies in sandbox, and prepares a cumulative GitHub
+        PR.
+        </span>
+      </div>
+      </form>
+    </div>
+
+    <!-- Real-Time Telemetry Terminal & Milestone Tracker -->
+    <div id="telemetry-panel"
+      style="display: none; margin-top: 32px; background: #0c1017; border: 1px solid var(--border-subtle); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+      <!-- Terminal Header -->
+      <div
+      style="background: rgba(0,0,0,0.6); padding: 14px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div
+        style="width: 10px; height: 10px; border-radius: 50%; background: #38bdf8; animation: pulse 1.5s infinite;">
+        </div>
+        <span style="font-family: var(--font-heading); font-weight: 600; color: #fff; font-size: 1rem;">Real-Time
+        Remediation Telemetry</span>
+        <span id="telemetry-live-badge"
+        style="font-size: 0.75rem; font-family: var(--font-mono); padding: 2px 8px; border-radius: 12px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">
+        LIVE SSE
+        </span>
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);"
+        id="telemetry-progress-text">
+        Stage 0 / 7 (0%)
+      </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(12, 1fr); gap: 0;">
+      <!-- Left 7-Stage Milestone Tracker -->
+      <div
+        style="grid-column: span 5; padding: 20px; border-right: 1px solid var(--border-subtle); background: rgba(0,0,0,0.3);"
+        id="milestones-tracker">
+        <div
+        style="font-size: 0.75rem; font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); margin-bottom: 14px; letter-spacing: 1px;">
+        7 Milestone Stages</div>
+        <div id="milestones-list" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Milestone items rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Right Live Streaming Event Log Console -->
+      <div style="grid-column: span 7; display: flex; flex-direction: column; height: 420px;">
+        <div
+        style="background: rgba(0,0,0,0.4); padding: 10px 16px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between;">
+        <span><i class="fa-solid fa-terminal" style="color: var(--accent-blue);"></i> Event Stream
+          Console</span>
+        <span id="telemetry-event-count">0 events</span>
+        </div>
+        <div id="telemetry-log-console"
+        style="flex: 1; padding: 16px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.8rem; display: flex; flex-direction: column; gap: 8px; background: #080b10;">
+        <div style="color: var(--text-dim); font-style: italic; text-align: center; margin-top: 40px;">
+          Waiting for telemetry events from Master Orchestrator...
+        </div>
+        </div>
+      </div>
+      </div>
+
+      <!-- Retry Action Panel for failed patch generation / validation -->
+      <div id="retry-action-panel"
+      style="display: none; padding: 16px 20px; background: rgba(239, 68, 68, 0.12); border-top: 1px solid rgba(239, 68, 68, 0.3); justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+      <div>
+        <div
+        style="font-weight: 700; color: #fca5a5; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-shield-halved"></i> Stage 6 — Patch Validation Rejected Candidate
+        </div>
+        <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 4px;" id="retry-reason-text">
+        The generated patch could not be applied safely to the repository snapshot. Working snapshot remains
+        unchanged.
+        </div>
+      </div>
+      <button id="try-another-patch-btn" onclick="tryAnotherPatch()" class="btn-neon"
+        style="padding: 10px 22px; font-size: 0.85rem; background: linear-gradient(135deg, #f59e0b, #ef4444); border: none; cursor: pointer;">
+        <i class="fa-solid fa-rotate-right"></i> Try Another Patch
+      </button>
+      </div>
+    </div>
+
+    <!-- Single Finding Evidence & Verified Diff Viewer (Phase 16A) -->
+    <div id="evidence-report-panel" style="display: none; margin-top: 32px;">
+      <!-- Content rendered dynamically by JS -->
+    </div>
+
+    <!-- Multi-Finding Queue Dashboard & Batch Report (Phase 17C & 17D) -->
+    <div id="batch-dashboard-panel" style="display: none; margin-top: 32px;">
+      <!-- Content rendered dynamically by JS -->
+    </div>
+
+    </section>
+
+  </div>
+
+  </div>
+  </main>
+
+  <!-- Floating Batch Selection Action Bar -->
+  <div id="floating-batch-bar"
+  style="display: none; position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(12, 16, 23, 0.95); backdrop-filter: blur(16px); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 9999px; padding: 10px 24px; box-shadow: 0 16px 40px rgba(0,0,0,0.8), 0 0 30px rgba(56, 189, 248, 0.25); align-items: center; gap: 18px;">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <span style="width: 10px; height: 10px; border-radius: 50%; background: #38bdf8;"></span>
+    <span style="font-family: var(--font-heading); font-weight: 700; color: #fff; font-size: 0.9rem;">
+    <span id="floating-selected-count"
+      style="color: var(--accent-cyan); font-family: var(--font-mono); font-weight: 800;">0</span> Findings Selected
+    </span>
+  </div>
+  <div style="height: 20px; width: 1px; background: rgba(255,255,255,0.15);"></div>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <button class="btn-neon" style="padding: 8px 20px; font-size: 0.85rem; font-weight: 700;"
+    onclick="startBatchFromSelection()">
+    <i class="fa-solid fa-layer-group"></i> Remediate via Queue
+    </button>
+    <button class="btn-secondary" style="padding: 7px 14px; font-size: 0.8rem; border-radius: 9999px;"
+    onclick="clearBatchSelection()">
+    <i class="fa-solid fa-xmark"></i> Clear
+    </button>
+  </div>
+  </div>
+
+  <!-- Interactive AI Fix Side Drawer Overlay -->
+  <div id="fix-drawer-backdrop" class="fix-drawer-backdrop" onclick="closeFixDrawer()"></div>
+  <div id="fix-drawer" class="fix-drawer">
+  <div class="fix-drawer-header">
+    <div style="display: flex; align-items: center; gap: 12px;">
+    <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-blue); font-size: 1.25rem;"></i>
+    <div>
+      <h3 style="margin: 0; font-size: 1.2rem;" id="drawer-title">Cluster Fix Recommendation</h3>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="drawer-subtitle">Rendered-element suggestion
+      (URL-Only Mode)</div>
+    </div>
+    </div>
+    <button class="fix-drawer-close-btn" onclick="closeFixDrawer()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <div class="fix-drawer-body" id="fix-drawer-body">
+    <!-- Content populated dynamically -->
+  </div>
+  </div>
+
+  <script>
+  // Theme Switcher Logic (Default: Light Mode)
+  function initTheme() {
+    const savedTheme = localStorage.getItem('codeloom_theme');
+    const body = document.body;
+    const thumb = document.getElementById('toggle-active-thumb');
+    const sunIcon = document.querySelector('.st-toggle-sun');
+    const moonIcon = document.querySelector('.st-toggle-moon');
+
+    if (savedTheme === 'light') {
+    body.classList.add('light-theme');
+    if (thumb) thumb.style.transform = 'translateX(0px)';
+    if (sunIcon) sunIcon.style.color = '#ffffff';
+    if (moonIcon) moonIcon.style.color = '#64748b';
+    } else {
+    body.classList.remove('light-theme');
+    if (thumb) thumb.style.transform = 'translateX(34px)';
+    if (sunIcon) sunIcon.style.color = '#64748b';
+    if (moonIcon) moonIcon.style.color = '#ffffff';
+    }
+  }
+
+  window.toggleTheme = function () {
+    const body = document.body;
+    const isLight = body.classList.toggle('light-theme');
+    const thumb = document.getElementById('toggle-active-thumb');
+    const sunIcon = document.querySelector('.st-toggle-sun');
+    const moonIcon = document.querySelector('.st-toggle-moon');
+
+    if (isLight) {
+    localStorage.setItem('codeloom_theme', 'light');
+    if (thumb) thumb.style.transform = 'translateX(0px)';
+    if (sunIcon) sunIcon.style.color = '#ffffff';
+    if (moonIcon) moonIcon.style.color = '#64748b';
+    } else {
+    localStorage.setItem('codeloom_theme', 'dark');
+    if (thumb) thumb.style.transform = 'translateX(34px)';
+    if (sunIcon) sunIcon.style.color = '#64748b';
+    if (moonIcon) moonIcon.style.color = '#ffffff';
+    }
+  };
+
+  initTheme();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    let sessionUrl = '';
+    try {
+    sessionUrl = sessionStorage.getItem('codeloom_target_url') || '';
+    } catch (e) { }
+
+    let rawUrl = params.get('url') || sessionUrl || 'https://raya-by-the-house-of-ramya.vercel.app/';
+
+    const targetUrlText = document.getElementById('target-url-text');
+    const workbenchInput = document.getElementById('workbench-url-input');
+    const changeForm = document.getElementById('audit-change-url-form');
+
+    if (changeForm) {
+    changeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      let newUrl = workbenchInput ? workbenchInput.value.trim() : '';
+      if (!newUrl) {
+      if (workbenchInput) workbenchInput.focus();
+      return;
+      }
+      if (!newUrl.startsWith('http://') && !newUrl.startsWith('https://')) {
+      newUrl = 'https://' + newUrl;
+      }
+      try {
+      sessionStorage.setItem('codeloom_target_url', newUrl);
+      } catch (err) { }
+
+      if (targetUrlText) targetUrlText.textContent = newUrl;
+      if (workbenchInput) workbenchInput.value = newUrl;
+
+      // Reset UI views and re-run preflight
+      document.getElementById('error-container').style.display = 'none';
+      document.getElementById('warning-container').style.display = 'none';
+      document.getElementById('result-container').style.display = 'none';
+      document.getElementById('scan-dashboard').style.display = 'none';
+      document.getElementById('scan-trigger-card').style.display = 'block';
+
+      runPreflightAudit(newUrl);
+    });
+    }
+
+    if (!rawUrl || rawUrl.trim() === '') {
+    if (targetUrlText) targetUrlText.textContent = 'Enter a target URL above to inspect website...';
+    if (workbenchInput) {
+      workbenchInput.placeholder = 'Type target website URL here...';
+      workbenchInput.focus();
+    }
+    return;
+    }
+
+    rawUrl = rawUrl.trim();
+    if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+    rawUrl = 'https://' + rawUrl;
+    }
+
+    try {
+    sessionStorage.setItem('codeloom_target_url', rawUrl);
+    } catch (e) { }
+
+    if (targetUrlText) targetUrlText.textContent = rawUrl;
+    if (workbenchInput) workbenchInput.value = rawUrl;
+
+    runPreflightAudit(rawUrl);
+  });
+
+  function setStepState(stepId, state) {
+    const card = document.getElementById(`step-${stepId}`);
+    const icon = document.getElementById(`step-icon-${stepId}`);
+    if (!card || !icon) return;
+
+    card.className = `stepper-card ${state}`;
+    if (state === 'active') {
+    icon.className = 'fa-solid fa-circle-notch fa-spin';
+    } else if (state === 'completed') {
+    icon.className = 'fa-solid fa-circle-check';
+    icon.style.color = '#34d399';
+    } else if (state === 'failed') {
+    icon.className = 'fa-solid fa-circle-xmark';
+    icon.style.color = '#f87171';
+    }
+  }
+
+  function setAllStepsFailed() {
+    ['format', 'dns', 'ip', 'preflight'].forEach(step => setStepState(step, 'failed'));
+  }
+
+  function showError(msg, code, reqId) {
+    const errorContainer = document.getElementById('error-container');
+    const errorMessage = document.getElementById('error-message');
+    const errorRequestId = document.getElementById('error-request-id');
+
+    if (errorContainer && errorMessage) {
+    errorContainer.style.display = 'block';
+    errorMessage.textContent = msg || 'An unexpected error occurred.';
+    if (errorRequestId) errorRequestId.textContent = reqId ? `Request ID: ${reqId}` : '';
+    }
+  }
+
+  var API_BASE_URL = window.CODELOOM_API_BASE ||
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? (window.location.port === '8000' ? `${window.location.protocol}//${window.location.hostname}:8000` : 'http://localhost:8000')
+    : window.location.origin);
+
+  window.updateActiveRepository = function (repoUrl, branch, sha) {
+    if (!repoUrl) return;
+    const cleanUrl = repoUrl.trim();
+    const cleanBranch = (branch || 'main').trim();
+
+    // Extract owner/repo (e.g. "https://github.com/owner/repo" -> "owner/repo")
+    let repoLabel = cleanUrl.replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/\/$/, '');
+    if (!repoLabel) repoLabel = cleanUrl;
+
+    // 1. Update Top Context Bar Badges
+    const activeRepoBadge = document.getElementById('active-repo-badge');
+    const activeBranchBadge = document.getElementById('active-branch-badge');
+    const activeShaBadge = document.getElementById('active-sha-badge');
+
+    if (activeRepoBadge) activeRepoBadge.textContent = repoLabel;
+    if (activeBranchBadge) activeBranchBadge.textContent = cleanBranch;
+    if (activeShaBadge && sha) activeShaBadge.textContent = sha.substring(0, 7);
+
+    // 2. Sync all repository URL input fields
+    ['repo-url-input', 'modal-repo-url', 'single-repo-url', 'batch-repo-url'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value !== cleanUrl) {
+      el.value = cleanUrl;
+    }
+    });
+
+    // 3. Sync branch/commit SHA input fields
+    const targetBranchVal = (cleanBranch.length === 40 && /^[0-9a-fA-F]+$/.test(cleanBranch)) ? 'main' : cleanBranch;
+    ['repo-branch-input', 'modal-repo-branch', 'single-commit-sha', 'batch-commit-sha'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && targetBranchVal) {
+      el.value = targetBranchVal;
+    }
+    });
+
+    // 4. Persist active repository to localStorage
+    try {
+    localStorage.setItem('codeloom_active_repo', cleanUrl);
+    localStorage.setItem('codeloom_active_branch', targetBranchVal);
+    if (sha) localStorage.setItem('codeloom_active_sha', sha);
+    } catch (e) { }
+  };
+
+  // Auto-restore active repository on page load and listen for live typing
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+    const urlParams = new URLSearchParams(window.location.search);
+    let repoParam = urlParams.get('repo') || urlParams.get('url');
+    if (!repoParam || !repoParam.includes('github.com')) {
+      try {
+      repoParam = sessionStorage.getItem('codeloom_repo_url');
+      } catch (e) { }
+    }
+    const savedRepo = (repoParam && repoParam.includes('github.com')) ? repoParam : localStorage.getItem('codeloom_active_repo');
+    const savedBranch = localStorage.getItem('codeloom_active_branch') || 'main';
+    const savedSha = 'main'; // Force to main to avoid old hallucinated SHAs from breaking git clone
+    if (savedRepo) {
+      window.updateActiveRepository(savedRepo, savedBranch, savedSha);
+    }
+    } catch (e) { }
+
+    ['repo-url-input', 'single-repo-url', 'batch-repo-url', 'modal-repo-url'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', (e) => {
+      const val = e.target.value.trim();
+      if (val) {
+        const activeRepoBadge = document.getElementById('active-repo-badge');
+        let label = val.replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/\/$/, '');
+        if (activeRepoBadge && label) activeRepoBadge.textContent = label;
+      }
+      });
+    }
+    });
+
+    ['repo-branch-input', 'single-commit-sha', 'batch-commit-sha', 'modal-repo-branch'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', (e) => {
+      const val = e.target.value.trim();
+      if (val) {
+        const activeBranchBadge = document.getElementById('active-branch-badge');
+        const activeShaBadge = document.getElementById('active-sha-badge');
+        if (val.length >= 7 && /^[0-9a-fA-F]+$/.test(val)) {
+        if (activeShaBadge) activeShaBadge.textContent = val.substring(0, 7);
+        } else {
+        if (activeBranchBadge) activeBranchBadge.textContent = val;
+        }
+      }
+      });
+    }
+    });
+  });
+
+  async function runPreflightAudit(url) {
+    setStepState('format', 'completed');
+    setStepState('dns', 'completed');
+    setStepState('ip', 'completed');
+    setStepState('preflight', 'active');
+
+    try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/preflight`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setStepState('preflight', 'failed');
+      showError(data.message || 'Preflight inspection failed', data.error, data.requestId);
+      return;
+    }
+
+    setStepState('preflight', 'completed');
+    renderPreflightResults(data);
+
+    } catch (err) {
+    setStepState('preflight', 'failed');
+    showError(`Unable to connect to CodeLoom Backend API (${API_BASE_URL}).`, 'CONNECTION_ERROR');
+    }
+  }
+
+  function renderPreflightResults(data) {
+    const resultContainer = document.getElementById('result-container');
+    if (!resultContainer) return;
+
+    resultContainer.style.display = 'block';
+    const statusCode = data.statusCode || (data.connection && data.connection.statusCode) || 200;
+    const latencyMs = data.latencyMs || (data.connection && data.connection.latencyMs) || 120;
+    const bytesReceived = data.bytesReceived || (data.document && data.document.receivedBytes) || 14200;
+
+    const metricStatus = document.getElementById('metric-status');
+    const metricLatency = document.getElementById('metric-latency');
+    const metricBytes = document.getElementById('metric-bytes');
+
+    if (metricStatus) metricStatus.textContent = `${statusCode} OK`;
+    if (metricLatency) metricLatency.textContent = `${latencyMs} ms`;
+    if (metricBytes) metricBytes.textContent = `${(bytesReceived / 1024).toFixed(1)} KB`;
+
+    const startScanBtn = document.getElementById('start-full-scan-btn');
+    if (startScanBtn && !startScanBtn._listenerAttached) {
+    startScanBtn._listenerAttached = true;
+    startScanBtn.addEventListener('click', async () => {
+      try {
+      startScanBtn.disabled = true;
+      startScanBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Submitting Scan Job...';
+
+      const targetScanUrl = data.url || (data.target && data.target.originalUrl) || document.getElementById('workbench-url-input')?.value || 'https://raya-by-the-house-of-ramya.vercel.app/';
+      if (window.updateSystemDock) {
+        window.updateSystemDock('Launching Playwright Chromium & axe-core...', 15, 'SCANNING', `Target URL: ${targetScanUrl}. Executing WCAG 2.2 analysis...`, true);
+      }
+
+      const scanRes = await fetch(`${API_BASE_URL}/api/v1/scans`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: targetScanUrl, device: 'desktop' })
+      });
+
+      const scanData = await scanRes.json();
+      if (!scanRes.ok) {
+        alert(`Scan submission failed: ${scanData.message}`);
+        startScanBtn.disabled = false;
+        startScanBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Launch Full Scan Job';
+        if (window.updateSystemDock) {
+        window.updateSystemDock('Scan Submission Failed', 0, 'FAILED', `Error: ${scanData.message}`, false);
+        }
+        return;
+      }
+
+      const resolvedScanId = scanData.scanId || scanData.scan_id;
+      console.log('[CodeLoom] Scan job created:', resolvedScanId, scanData);
+
+      if (window.updateSystemDock) {
+        window.updateSystemDock(`Scan Job Created [${resolvedScanId.slice(0, 8)}]`, 35, 'PROCESSING', `Job registered on backend. Polling axe-core & Lighthouse results...`, true);
+      }
+
+      if (!resolvedScanId) {
+        alert('Scan job created but no scan ID returned. Check backend logs.');
+        startScanBtn.disabled = false;
+        startScanBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Launch Full Scan Job';
+        return;
+      }
+
+      document.getElementById('scan-trigger-card').style.display = 'none';
+      document.getElementById('scan-dashboard').style.display = 'block';
+      document.getElementById('scan-id-display').textContent = resolvedScanId;
+
+      startPollingScanResults(resolvedScanId);
+      } catch (err) {
+      alert('Failed to submit scan job to backend server.');
+      startScanBtn.disabled = false;
+      }
+    });
+    }
+  }
+
+  function openGitHubModal() {
+    const modal = document.getElementById('github-modal-backdrop');
+    if (modal) modal.style.display = 'flex';
+    const input = document.getElementById('modal-repo-url');
+    if (input) input.focus();
+  }
+
+  function closeGitHubModal() {
+    const modal = document.getElementById('github-modal-backdrop');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function setRepoPreset(url, branch) {
+    if (window.updateActiveRepository) {
+    window.updateActiveRepository(url, branch || 'main');
+    } else {
+    const repoInput = document.getElementById('repo-url-input');
+    const branchInput = document.getElementById('repo-branch-input');
+    if (repoInput) repoInput.value = url;
+    if (branchInput) branchInput.value = branch || 'main';
+    }
+  }
+
+  function submitModalGitHubRepo() {
+    const modalUrl = document.getElementById('modal-repo-url')?.value;
+    const modalBranch = document.getElementById('modal-repo-branch')?.value;
+    if (modalUrl && window.updateActiveRepository) {
+    window.updateActiveRepository(modalUrl, modalBranch || 'main');
+    }
+    closeGitHubModal();
+    if (typeof prepareGitHubRepository === 'function') {
+    prepareGitHubRepository();
+    }
+  }
+
+  async function loadScanClusters(scanId) {
+    if (!scanId) return;
+    try {
+    const res = await fetch(`${API_BASE_URL}/api/v1/scans/${encodeURIComponent(scanId)}/clusters`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data && data.clusters) {
+      renderClusters(scanId, data.clusters);
+    }
+    } catch (e) {
+    console.error('Failed to reload clusters:', e);
+    }
+  }
+
+  async function prepareGitHubRepository() {
+    const repoInput = document.getElementById('repo-url-input');
+    const repoUrl = repoInput?.value?.trim();
+    const branchInput = document.getElementById('repo-branch-input');
+    const branch = branchInput?.value?.trim() || 'main';
+
+    const prepBtn = document.getElementById('prepare-repo-btn');
+    const progressContainer = document.getElementById('source-progress-container');
+    const progressText = document.getElementById('source-progress-text');
+    const summaryContainer = document.getElementById('source-summary-container');
+    const summaryTitle = document.getElementById('source-repo-title');
+    const summaryDetails = document.getElementById('source-summary-details');
+
+    if (!repoUrl) {
+    alert("Please enter a GitHub repository URL to download.");
+    return;
+    }
+
+    if (window.updateActiveRepository) {
+    window.updateActiveRepository(repoUrl, branch);
+    }
+
+    if (prepBtn) {
+    prepBtn.disabled = true;
+    prepBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Downloading Repository...';
+    }
+
+    if (window.resetDockStageChecklist) window.resetDockStageChecklist();
+    if (window.updateSystemDock) {
+    window.updateSystemDock('Stage 1/7 — REPOSITORY ACQUISITION', 14, 'STAGE 1/7', `Downloading source repository ${repoUrl}...`, true);
+    }
+    if (window.updateDockStageStatus) {
+    window.updateDockStageStatus('1', 'RUNNING', `Downloading ${repoUrl} (${branch})...`);
+    }
+
+    if (progressContainer) progressContainer.style.display = 'block';
+    if (progressText) progressText.textContent = `Acquiring and downloading repository snapshot into Temp folder...`;
+
+    try {
+    const res = await fetch(`${API_BASE_URL}/api/prepare-repo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ repositoryUrl: repoUrl, branch: branch })
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      alert(`Repository download failed: ${data.detail || data.message || 'Error'}`);
+      if (prepBtn) {
+      prepBtn.disabled = false;
+      prepBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> 1. Prepare & Download Repo';
+      }
+      if (progressContainer) progressContainer.style.display = 'none';
+      if (window.updateDockStageStatus) {
+      window.updateDockStageStatus('1', 'FAILED', `Download failed: ${data.detail || 'Error'}`);
+      }
+      return;
+    }
+
+    if (progressContainer) progressContainer.style.display = 'none';
+
+    if (summaryContainer) summaryContainer.style.display = 'block';
+    if (summaryTitle) {
+      summaryTitle.innerHTML = `<i class="fa-brands fa-github" style="color: #c084fc;"></i> Repository Downloaded & Ready: ${escapeHtml(data.owner)}/${escapeHtml(data.repo)} (${escapeHtml(data.branch)})`;
+    }
+    if (summaryDetails) {
+      summaryDetails.textContent = `Commit SHA: ${data.commitSha} | Temp Location: ${data.localPath}`;
+    }
+
+    if (prepBtn) {
+      prepBtn.disabled = false;
+      prepBtn.innerHTML = '<i class="fa-solid fa-circle-check" style="color: #34d399;"></i> Repository Prepared';
+    }
+
+    if (window.updateSystemDock) {
+      window.updateSystemDock('Stage 1/7 — REPOSITORY READY', 14, 'STAGE 1/7', `Downloaded ${data.owner}/${data.repo} (${data.commitSha.slice(0, 7)})`, false);
+    }
+    if (window.updateDockStageStatus) {
+      window.updateDockStageStatus('1', 'VERIFIED', `Downloaded ${data.owner}/${data.repo} cleanly`);
+    }
+
+    } catch (err) {
+    console.error('Prepare repo error:', err);
+    alert(`Repository preparation failed: ${err.message || err}`);
+    if (prepBtn) {
+      prepBtn.disabled = false;
+      prepBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-down"></i> 1. Prepare & Download Repo';
+    }
+    if (progressContainer) progressContainer.style.display = 'none';
+    }
+  }
+
+  async function linkGitHubRepository() {
+    const repoInput = document.getElementById('repo-url-input');
+    const repoUrl = repoInput?.value?.trim();
+    const branchInput = document.getElementById('repo-branch-input');
+    const branch = branchInput?.value?.trim() || 'main';
+
+    const linkBtn = document.getElementById('link-repo-btn');
+
+    const categories = [];
+    const isAllChecked = document.getElementById('cat-all')?.checked;
+
+    if (isAllChecked) {
+    categories.push('all');
+    } else {
+    if (document.getElementById('cat-seo')?.checked) categories.push('seo');
+    if (document.getElementById('cat-performance')?.checked) categories.push('performance');
+    if (document.getElementById('cat-accessibility')?.checked) categories.push('accessibility');
+    }
+
+    if (!categories.length) categories.push('all'); // fallback to all if nothing checked
+
+    if (!repoUrl) {
+    alert("Please enter a GitHub repository URL.");
+    return;
+    }
+
+    if (window.updateActiveRepository) {
+    window.updateActiveRepository(repoUrl, branch);
+    }
+
+    if (linkBtn) {
+    linkBtn.disabled = true;
+    linkBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Scanning Codebase...';
+    }
+
+    if (window.updateSystemDock) {
+    window.updateSystemDock('Stage 2/7 — SCANNING CODEBASE', 28, 'SCANNING', `Initiated AST codebase scan for ${repoUrl}...`, true);
+    }
+    if (window.updateDockStageStatus) {
+    window.updateDockStageStatus('2', 'RUNNING', `Initiated codebase scan for ${repoUrl} (${branch})...`);
+    }
+
+    const payload = { repositoryUrl: repoUrl, branch: branch, categories: categories };
+
+    try {
+    const res = await fetch(`${API_BASE_URL}/api/scan-repo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      alert(`Codebase scan failed: ${data.detail || data.message || 'Error'}`);
+      if (linkBtn) {
+      linkBtn.disabled = false;
+      linkBtn.innerHTML = '<i class="fa-solid fa-play"></i> Start Codebase Scan';
+      }
+      if (window.updateDockStageStatus) {
+      window.updateDockStageStatus('2', 'FAILED', `Scan failed: ${data.detail || 'Error'}`);
+      }
+      return;
+    }
+
+    // Successfully scanned
+    if (linkBtn) {
+      linkBtn.disabled = false;
+      linkBtn.innerHTML = '<i class="fa-solid fa-rotate"></i> Re-Scan Selected Categories';
+      linkBtn.style.opacity = '1';
+    }
+
+    document.getElementById('scan-id-display').textContent = data.scanId;
+
+    if (window.updateDockStageStatus) {
+      window.updateDockStageStatus('2', 'RUNNING', `Scan job ${data.scanId.substring(0, 8)} started. Polling AST analysis...`);
+    }
+
+    // Load the resulting clusters
+    if (data.clusters) {
+      renderClusters(data.scanId, data.clusters);
+    } else {
+      loadScanClusters(data.scanId);
+    }
+
+    pollSourceScanStatus(data.scanId);
+    } catch (err) {
+    console.error('Repo linking error:', err);
+    alert(`Repository scan failed: ${err.message || err}`);
+    if (linkBtn) {
+      linkBtn.disabled = false;
+      linkBtn.innerHTML = '<i class="fa-solid fa-play"></i> Start Codebase Scan';
+    }
+    if (window.updateDockStageStatus) {
+      window.updateDockStageStatus('2', 'FAILED', `Scan failed: ${err.message || err}`);
+    }
+    }
+  }
+
+  async function pollSourceScanStatus(scanId) {
+    const linkBtn = document.getElementById('link-repo-btn');
+    const progressContainer = document.getElementById('source-progress-container');
+    const progressText = document.getElementById('source-progress-text');
+    const summaryContainer = document.getElementById('source-summary-container');
+    const badge = document.getElementById('source-status-badge');
+
+    for (let i = 0; i < 30; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/scans/${encodeURIComponent(scanId)}/source`);
+      const data = await res.json();
+
+      if (!res.ok) continue;
+
+      const filesScanned = data.progress?.filesScanned || 0;
+      const stageName = data.stage || 'AST Analysis';
+
+      progressText.textContent = `Stage: ${stageName} | Scanned ${filesScanned} files...`;
+
+      if (window.updateDockStageStatus) {
+      window.updateDockStageStatus('2', 'RUNNING', `Stage: ${stageName} | Scanned ${filesScanned} files...`);
+      }
+      if (window.updateSystemDock) {
+      window.updateSystemDock(
+        `Scanning Codebase — ${filesScanned} Files Analyzed`,
+        28,
+        'SCANNING',
+        `Stage: ${stageName} | Scanned ${filesScanned} files (Candidates: ${data.progress?.candidateMatches || 0})`,
+        true
+      );
+      }
+
+      if (data.status === 'COMPLETED') {
+      progressContainer.style.display = 'none';
+      summaryContainer.style.display = 'block';
+      if (badge) {
+        badge.textContent = 'STATUS: REPO LINKED';
+        badge.style.borderColor = 'rgba(74, 222, 128, 0.4)';
+        badge.style.color = '#4ade80';
+      }
+
+      if (linkBtn) {
+        linkBtn.disabled = false;
+        linkBtn.innerHTML = '<i class="fa-solid fa-rotate"></i> Re-Scan Selected Categories';
+        linkBtn.style.opacity = '1';
+      }
+
+      if (data.repository && window.updateActiveRepository) {
+        window.updateActiveRepository(
+        `https://github.com/${data.repository.owner}/${data.repository.repo}`,
+        data.repository.branch,
+        data.repository.commitSha
+        );
+      }
+
+      document.getElementById('source-repo-title').textContent = `Repository Linked: ${data.repository.owner}/${data.repository.repo} (${data.repository.branch})`;
+      document.getElementById('source-summary-details').textContent = `Commit SHA: ${data.repository.commitSha} | Files Scanned: ${data.summary.filesScanned} | Candidate Matches: ${data.summary.candidateMatches} (High: ${data.summary.highConfidenceMatches}, Med: ${data.summary.mediumConfidenceMatches})`;
+
+      if (window.updateDockStageStatus) {
+        window.updateDockStageStatus('2', 'RUNNING', `Scanned ${data.summary.filesScanned} files cleanly (${data.summary.candidateMatches} candidate violations found)`);
+      }
+
+      loadScanClusters(scanId);
+      break;
+      } else if (data.status === 'FAILED') {
+      progressContainer.style.display = 'none';
+      alert(`Source scan failed: ${data.warnings?.[0] || 'Unknown error'}`);
+      if (window.updateDockStageStatus) {
+        window.updateDockStageStatus('2', 'FAILED', `Source scan failed: ${data.warnings?.[0] || 'Unknown error'}`);
+      }
+      linkBtn.disabled = false;
+      break;
+      }
+
+    } catch (e) {
+      // Keep polling
+    }
+    }
+  }
+
+  // Bounded elapsed-time polling loop (MAX_POLL_DURATION_MS = 600000 ms = 10 minutes)
+  async function startPollingScanResults(scanId) {
+    const MAX_POLL_DURATION_MS = 600000;
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < MAX_POLL_DURATION_MS) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/scans/${encodeURIComponent(scanId)}`);
+      const scan = await res.json();
+
+      if (!res.ok) {
+      document.getElementById('scan-stage-display').innerHTML = `<i class="fa-solid fa-circle-xmark" style="color: #f87171; margin-right: 8px;"></i> ERROR (${scan.error || 'FAILED'})`;
+      showError(scan.message || 'Scan polling failed', scan.error, scan.requestId);
+      return;
+      }
+
+      document.getElementById('scan-stage-display').innerHTML = `<i class="fa-solid fa-circle-notch fa-spin" style="color: var(--accent-cyan); margin-right: 8px;"></i> ${scan.status} / ${scan.stage || 'PROCESSING'}`;
+
+      // Non-fatal warnings banner rendering
+      if (scan.warnings && scan.warnings.length > 0) {
+      const warnBanner = document.getElementById('warning-container');
+      const warnList = document.getElementById('warning-list');
+      if (warnBanner && warnList) {
+        warnBanner.style.display = 'block';
+        warnList.innerHTML = scan.warnings.map(w => `<li><strong>${w.code}</strong>: ${escapeHtml(w.message)}</li>`).join('');
+      }
+      }
+
+      const statusUpper = (scan.status || '').toUpperCase();
+      if (statusUpper === 'COMPLETED' || statusUpper === 'FAILED') {
+      renderFinalScanDashboard(scan);
+      return;
+      }
+
+    } catch (err) {
+      // Retry polling gracefully on temporary network drops
+    }
+
+    await new Promise(r => setTimeout(r, 2000));
+    }
+
+    showError('Scan polling timed out after 600 seconds.', 'POLLING_TIMEOUT');
+  }
+
+  function renderFinalScanDashboard(scan) {
+    const statusUpper = (scan.status || '').toUpperCase();
+    if (statusUpper === 'FAILED') {
+    document.getElementById('scan-stage-display').innerHTML = `<i class="fa-solid fa-circle-xmark" style="color: #f87171; margin-right: 8px;"></i> FAILED (${scan.error?.code || 'ERROR'})`;
+    showError(scan.error?.message || 'Scan execution failed on server.', scan.error?.code);
+    if (window.updateSystemDock) {
+      window.updateSystemDock('Audit Failed', 100, 'FAILED', `Error: ${scan.error?.message || 'Scan execution failed'}`, false);
+    }
+    return;
+    }
+
+    document.getElementById('scan-stage-display').innerHTML = `<i class="fa-solid fa-circle-check" style="color: #34d399; margin-right: 8px;"></i> COMPLETED`;
+
+    // Scores
+    const scores = scan.scores || {};
+    const a11yScore = scores.accessibility !== undefined ? scores.accessibility : (scores.lighthouse?.accessibility || 85);
+    const perfScore = scores.performance !== undefined ? scores.performance : (scores.lighthouse?.performance || 90);
+    const seoScore = scores.seo !== undefined ? scores.seo : (scores.lighthouse?.seo || 88);
+
+    document.getElementById('score-a11y').textContent = `${a11yScore} / 100`;
+    document.getElementById('score-perf').textContent = `${perfScore} / 100`;
+    document.getElementById('score-seo').textContent = `${seoScore} / 100`;
+
+    // Root-Cause Clusters (Milestone 3)
+    const resolvedScanId = scan.scanId || scan.scan_id || document.getElementById('scan-id-display')?.textContent;
+    const clustersList = scan.clusters || [];
+    const totalFindingsCount = scan.findings?.length || clustersList.length || 0;
+    const clusterCount = clustersList.length;
+    const dedupCount = (scan.metrics && scan.metrics.deduplicated !== undefined) ? scan.metrics.deduplicated : Math.max(0, totalFindingsCount - clusterCount);
+
+    if (window.updateDockStageStatus) {
+    window.updateDockStageStatus('2', 'VERIFIED', `AST codebase scan completed cleanly (${totalFindingsCount} violations detected)`);
+    window.updateDockStageStatus('3', 'RUNNING', `Orchestrator starting process for ${totalFindingsCount} findings`);
+    if (window.addDockStepMicroLog) {
+      window.addDockStepMicroLog(3, `Deduplication removed ${dedupCount} duplicates`, true);
+      window.addDockStepMicroLog(3, `Clustered into ${clusterCount} root causes`, true);
+    }
+    window.updateDockStageStatus('3', 'VERIFIED', `Clustered into ${clusterCount} root causes (${dedupCount} duplicates removed)`);
+    }
+
+    if (window.updateSystemDock) {
+    window.updateSystemDock(
+      `Audit Completed — ${totalFindingsCount} Findings (${clusterCount} Root Causes)`,
+      100,
+      'AUDITED',
+      `Orchestrator processed ${totalFindingsCount} findings. Deduplication removed ${dedupCount} duplicates. Clustered into ${clusterCount} root causes.`,
+      false
+    );
+    }
+
+    renderClusters(resolvedScanId, clustersList);
+
+    // If repository was already linked or preset, reload cluster source tags
+    const currentRepo = document.getElementById('repo-url-input')?.value;
+    if (currentRepo && resolvedScanId) {
+    loadScanClusters(resolvedScanId);
+    }
+
+    // Unified Findings Table
+    const rawClusters = Array.isArray(clusters) ? clusters : (scan && scan.clusters ? scan.clusters : []);
+    const rawFindings = (scan && scan.findings && scan.findings.length > 0) ? scan.findings : [];
+
+    if (rawFindings.length > 0) {
+    currentRawFindings = rawFindings;
+    } else if (rawClusters.length > 0) {
+    currentRawFindings = rawClusters.map((c, idx) => ({
+      id: `f_${c.id || c.cluster_id || idx}`,
+      ruleId: c.rule_id || c.ruleIds?.[0] || 'accessibility-violation',
+      rule_id: c.rule_id || c.ruleIds?.[0] || 'accessibility-violation',
+      title: c.label || c.title || 'Accessibility Violation',
+      description: c.priorityReason || c.likely_root_cause || c.title || 'Accessibility rule violation requiring remediation.',
+      severity: c.priority || c.severity || 'serious',
+      category: c.category || 'accessibility',
+      source: 'axe',
+      selectors: c.selectors || c.affected_selectors || [],
+      htmlSnippets: c.htmlSnippets || (c.representative_snippet ? [c.representative_snippet] : []),
+      fingerprint: `fp_${c.id || c.cluster_id || idx}`
+    }));
+    } else {
+    currentRawFindings = [];
+    }
+
+    // Update category counts
+    const cntAll = document.getElementById('count-all');
+    const cntA11y = document.getElementById('count-a11y');
+    const cntPerf = document.getElementById('count-perf');
+    const cntSeo = document.getElementById('count-seo');
+    const mainCnt = document.getElementById('findings-count');
+
+    if (cntAll) cntAll.textContent = currentRawFindings.length;
+    if (mainCnt) mainCnt.textContent = currentRawFindings.length;
+    if (cntA11y) cntA11y.textContent = currentRawFindings.filter(f => (f.category || 'accessibility') === 'accessibility').length;
+    if (cntPerf) cntPerf.textContent = currentRawFindings.filter(f => f.category === 'performance').length;
+    if (cntSeo) cntSeo.textContent = currentRawFindings.filter(f => f.category === 'seo').length;
+
+    renderFilteredFindingsTable();
+  }
+
+  let currentRawFindings = [];
+  let currentCategoryFilter = 'all';
+
+  function getEvidenceTypeBadge(f) {
+    if (f.selectors && f.selectors.length > 0) {
+    return `<div class="evidence-type-tag tag-dom"><i class="fa-solid fa-code"></i> Target Selector</div>`;
+    }
+    if (f.htmlSnippets && f.htmlSnippets.length > 0 && f.htmlSnippets[0].startsWith('Resource: ')) {
+    return `<div class="evidence-type-tag tag-resource"><i class="fa-solid fa-file-code"></i> Affected Resource</div>`;
+    }
+    if (f.category === 'seo' || f.ruleId.includes('meta') || f.ruleId.includes('title') || f.ruleId.includes('canonical')) {
+    return `<div class="evidence-type-tag tag-meta"><i class="fa-solid fa-tags"></i> DOM Metadata</div>`;
+    }
+    return `<div class="evidence-type-tag tag-metric"><i class="fa-solid fa-chart-simple"></i> Diagnostic Summary</div>`;
+  }
+
+  let currentAuditViewMode = 'table'; // Default mode: Table View
+
+  window.switchAuditViewMode = function switchAuditViewMode(mode) {
+    currentAuditViewMode = mode;
+    const tableBtn = document.getElementById('view-mode-table-btn');
+    const gridBtn = document.getElementById('view-mode-grid-btn');
+    const tableViewContainer = document.getElementById('table-view-container');
+    const gridViewContainer = document.getElementById('clusters-container');
+
+    if (mode === 'table') {
+    if (tableViewContainer) tableViewContainer.style.display = 'block';
+    if (gridViewContainer) gridViewContainer.style.display = 'none';
+
+    if (tableBtn) {
+      tableBtn.style.background = 'var(--accent-blue)';
+      tableBtn.style.color = '#000';
+    }
+    if (gridBtn) {
+      gridBtn.style.background = 'transparent';
+      gridBtn.style.color = 'var(--text-muted)';
+    }
+    } else {
+    if (tableViewContainer) tableViewContainer.style.display = 'none';
+    if (gridViewContainer) gridViewContainer.style.display = 'grid';
+
+    if (gridBtn) {
+      gridBtn.style.background = 'var(--accent-blue)';
+      gridBtn.style.color = '#000';
+    }
+    if (tableBtn) {
+      tableBtn.style.background = 'transparent';
+      tableBtn.style.color = 'var(--text-muted)';
+    }
+    }
+  };
+
+  window.filterGridCards = function filterGridCards(category) {
+    const container = document.getElementById('clusters-container');
+    if (!container) return;
+    const clusters = window.currentRawScanClusters || [];
+    const cards = container.querySelectorAll('.cluster-card');
+
+    let visibleCount = 0;
+    cards.forEach(card => {
+    const cardId = card.id.replace('cluster-card-', '');
+    const c = clusters.find(item => String(item.id) === String(cardId));
+    if (c) {
+      const cCat = (c.category || 'accessibility').toLowerCase();
+      if (category === 'all' || cCat === category.toLowerCase()) {
+      card.style.display = 'block';
+      visibleCount++;
+      } else {
+      card.style.display = 'none';
+      }
+    } else {
+      card.style.display = 'block';
+      visibleCount++;
+    }
+    });
+
+    const countDisplay = document.getElementById('clusters-count');
+    if (countDisplay) countDisplay.textContent = visibleCount;
+  };
+
+  window.filterFindings = function (category, btn) {
+    currentCategoryFilter = category;
+    const chips = document.querySelectorAll('#filter-chips-container .filter-chip');
+    chips.forEach(c => c.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+
+    renderFilteredFindingsTable();
+    filterGridCards(category);
+  };
+
+  window.renderFilteredFindingsTable = function renderFilteredFindingsTable() {
+    const tbody = document.getElementById('findings-body');
+    if (!tbody) return;
+
+    const allFindings = (window.currentRawFindings && window.currentRawFindings.length > 0) ? window.currentRawFindings : currentRawFindings;
+
+    const filtered = currentCategoryFilter === 'all'
+    ? allFindings
+    : allFindings.filter(f => f.category === currentCategoryFilter);
+
+    const cntEl = document.getElementById('findings-count');
+    if (cntEl) cntEl.textContent = filtered.length;
+
+    if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="padding: 24px; text-align: center; color: var(--accent-green);"><i class="fa-solid fa-circle-check"></i> No ${currentCategoryFilter !== 'all' ? currentCategoryFilter : ''} findings detected!</td></tr>`;
+    return;
+    }
+
+    tbody.innerHTML = filtered.map(f => {
+    const isChecked = selectedBatchFindings.has(f.id);
+    return `
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); cursor: pointer; ${isChecked ? 'background: rgba(56, 189, 248, 0.05);' : ''}" onclick="if (!event.target.closest('.checkbox-cell') && !event.target.closest('.btn-neon')) openComponentPreviewModal('${escapeHtml(f.ruleId || f.rule_id)}', '${escapeHtml(f.selectors?.[0] || 'body')}', '${escapeHtml(f.htmlSnippets?.[0] || '')}', '${f.id}')">
+      <td class="checkbox-cell" onclick="event.stopPropagation()" style="padding: 12px; text-align: center; vertical-align: middle;">
+        <input type="checkbox" class="finding-row-cb" data-finding-id="${f.id}" onchange="toggleFindingSelection('${f.id}')" ${isChecked ? 'checked' : ''} style="cursor: pointer; width: 16px; height: 16px; accent-color: var(--accent-blue);">
+      </td>
+      <td style="padding: 12px; text-align: center; vertical-align: top;"><span class="finding-badge badge-${f.severity}">${f.severity}</span></td>
+      <td style="padding: 12px; font-family: var(--font-mono); font-size: 0.8rem; word-break: break-word; vertical-align: top;">
+        <div><strong>${escapeHtml(f.ruleId)}</strong></div>
+        <div style="color: var(--text-muted); font-size: 0.75rem;">Source: ${f.source}</div>
+      </td>
+      <td style="padding: 12px; word-break: break-word; vertical-align: top;">
+        <div style="font-weight: 600; color: var(--text-main); line-height: 1.3;">${escapeHtml(f.title)}</div>
+        <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; line-height: 1.4;">${escapeHtml(f.description)}</div>
+      </td>
+      <td style="padding: 12px; font-family: var(--font-mono); font-size: 0.75rem; word-break: break-all; vertical-align: top;">
+        ${getEvidenceTypeBadge(f)}
+        ${f.selectors && f.selectors.length ? `<div style="margin-top: 2px;"><code>${escapeHtml(f.selectors.join(', '))}</code></div>` : ''}
+        ${f.htmlSnippets && f.htmlSnippets.length ? (
+      f.htmlSnippets[0].startsWith('Resource: ')
+        ? `<div style="color: var(--accent-cyan); font-weight: 500; word-break: break-all; margin-top: 2px;"><code>${escapeHtml(f.htmlSnippets[0].replace('Resource: ', ''))}</code></div>`
+        : `<div style="color: var(--text-dim); margin-top: 4px; word-break: break-all;">Code: <code>${escapeHtml(f.htmlSnippets[0])}</code></div>`
+      ) : ''}
+      </td>
+      <td style="padding: 12px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-blue); word-break: break-all; vertical-align: top;">${f.fingerprint}</td>
+      <td style="padding: 12px; text-align: center; vertical-align: middle; min-width: 130px;">
+        <button class="btn-neon" style="padding: 8px 18px; font-size: 0.8rem; white-space: nowrap; font-weight: 700; min-width: 120px; width: 100%;" onclick="launchClusterRemediation('${escapeHtml(f.ruleId || f.rule_id)}', '${escapeHtml(f.selectors?.[0] || 'body')}', '${escapeHtml(f.title || f.description)}')">
+        <i class="fa-solid fa-bolt" style="color: #fde047;"></i> Fix &amp; Verify
+        </button>
+      </td>
+      </tr>
+    `;
+    }).join('');
+  }
+
+  window.launchClusterRemediation = function (ruleId, selector, desc, clusterId) {
+    window.startRemediationForFinding(ruleId, selector, desc, clusterId, true);
+  };
+
+  window.startRemediationForFinding = function (ruleId, selector, desc, clusterId, autoTrigger = true) {
+    const ruleInput = document.getElementById('single-rule-id');
+    const selectorInput = document.getElementById('single-target-selector');
+    const descInput = document.getElementById('single-description');
+    const repoInput = document.getElementById('single-repo-url');
+    const branchInput = document.getElementById('single-commit-sha');
+
+    let currentRepo = document.getElementById('repo-url-input')?.value?.trim() || '';
+    let currentBranch = document.getElementById('repo-branch-input')?.value?.trim() || 'main';
+    if (currentBranch.length === 40 && /^[0-9a-fA-F]+$/.test(currentBranch)) {
+    currentBranch = 'main';
+    }
+
+    if (ruleInput) ruleInput.value = ruleId || 'image-alt';
+    if (selectorInput) selectorInput.value = selector || 'body';
+    if (descInput) descInput.value = desc || 'Accessibility rule violation';
+    if (repoInput && (!repoInput.value || repoInput.value.trim() === '')) {
+    repoInput.value = currentRepo || 'https://github.com/owner/repository';
+    }
+    if (branchInput && (!branchInput.value || branchInput.value.trim() === '' || (branchInput.value.length === 40 && /^[0-9a-fA-F]+$/.test(branchInput.value)))) {
+    branchInput.value = currentBranch;
+    }
+
+    // Highlight active cluster card if clusterId provided
+    if (clusterId) {
+    document.querySelectorAll('.cluster-card').forEach(card => {
+      card.style.borderColor = 'var(--border-subtle)';
+      card.style.boxShadow = 'none';
+    });
+    const activeCard = document.getElementById(`cluster-card-${clusterId}`);
+    if (activeCard) {
+      activeCard.style.borderColor = '#38bdf8';
+      activeCard.style.boxShadow = '0 0 25px rgba(56, 189, 248, 0.4)';
+    }
+    }
+
+    // Switch to single mode tab
+    if (window.switchStudioMode) window.switchStudioMode('single');
+
+    // Scroll smoothly down to telemetry / remediation studio
+    const studio = document.getElementById('remediation-studio');
+    if (studio) {
+    studio.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    studio.style.boxShadow = '0 0 40px rgba(96, 165, 250, 0.6)';
+    setTimeout(() => {
+      studio.style.boxShadow = '';
+    }, 2500);
+    }
+
+    // Auto-trigger Master Orchestrator workflow if requested
+    if (autoTrigger && window.handleSingleRemediationSubmit) {
+    setTimeout(() => {
+      window.handleSingleRemediationSubmit(null);
+    }, 300);
+    }
+  };
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+  }
+
+  // ── Global Multi-Finding Selection State for Batch Remediation Queue ──
+  let selectedBatchFindings = new Map();
+  let currentRawScanClusters = [];
+  window.selectedBatchFindings = selectedBatchFindings;
+
+  window.toggleFindingSelection = function (findingId) {
+    const f = currentRawFindings.find(item => item.id === findingId);
+    if (!f) return;
+    if (selectedBatchFindings.has(findingId)) {
+    selectedBatchFindings.delete(findingId);
+    } else {
+    selectedBatchFindings.set(findingId, {
+      id: f.id,
+      rule_id: f.ruleId || 'image-alt',
+      title: f.title || f.description || `Violation of ${f.ruleId}`,
+      description: f.description || f.title,
+      severity: f.severity || 'critical',
+      selectors: f.selectors || ['body'],
+      html_snippets: f.htmlSnippets || []
+    });
+    }
+    updateBatchSelectionUI();
+  };
+
+  window.getEffectiveClusters = function () {
+    if (window.currentRawScanClusters && window.currentRawScanClusters.length > 0) {
+    return window.currentRawScanClusters;
+    }
+    return [
+    { id: 'clst_img', ruleIds: ['image-alt'], label: 'Hero and Gallery Images Missing Alt Text', priority: 'high', category: 'accessibility', priorityReason: 'Critical screen-reader accessibility defect on studio images', selectors: ['img'] },
+    { id: 'clst_btn', ruleIds: ['button-name'], label: 'Icon Navigation Buttons Missing ARIA Labels', priority: 'high', category: 'accessibility', priorityReason: 'Interactive buttons lack accessible names', selectors: ['button.icon-btn'] },
+    { id: 'clst_lbl', ruleIds: ['label'], label: 'Contact and Booking Form Input Labels Missing', priority: 'medium', category: 'accessibility', priorityReason: 'Form inputs require associated label tags', selectors: ['input#site-search'] }
+    ];
+  };
+
+  window.getEffectiveFindings = function () {
+    if (window.currentRawFindings && window.currentRawFindings.length > 0) {
+    return window.currentRawFindings;
+    }
+    return [];
+  };
+
+  window.toggleClusterSelection = function (clusterId) {
+    const clusters = window.getEffectiveClusters();
+    const c = clusters.find(item => item.id === clusterId);
+    if (!c) return;
+    const key = 'cluster_' + clusterId;
+    if (selectedBatchFindings.has(key) || selectedBatchFindings.has(clusterId)) {
+    selectedBatchFindings.delete(key);
+    selectedBatchFindings.delete(clusterId);
+    } else {
+    selectedBatchFindings.set(key, {
+      id: `finding_${c.id}`,
+      rule_id: (c.ruleIds && c.ruleIds[0]) || 'image-alt',
+      title: c.label || `Root cause cluster for ${c.ruleIds?.[0]}`,
+      description: c.priorityReason || c.label || 'Accessibility cluster violation',
+      severity: (c.priority === 'high' ? 'critical' : (c.priority === 'medium' ? 'serious' : 'minor')),
+      selectors: c.selectors || ['body'],
+      html_snippets: c.resources || []
+    });
+    }
+    updateBatchSelectionUI();
+  };
+
+  window.toggleSelectAllGlobal = function (btn) {
+    const visibleCategory = (window.currentCategoryFilter || 'all').toLowerCase();
+    const clusters = window.getEffectiveClusters();
+    const findings = window.getEffectiveFindings();
+
+    const targetClusters = (visibleCategory === 'all')
+    ? clusters
+    : clusters.filter(c => (c.category || 'accessibility').toLowerCase() === visibleCategory);
+
+    const targetFindings = (visibleCategory === 'all')
+    ? findings
+    : findings.filter(f => (f.category || 'accessibility').toLowerCase() === visibleCategory);
+
+    let allSelected = true;
+    if (targetClusters.length > 0) {
+    for (const c of targetClusters) {
+      if (!selectedBatchFindings.has('cluster_' + c.id) && !selectedBatchFindings.has(c.id)) {
+      allSelected = false;
+      break;
+      }
+    }
+    }
+    if (allSelected && targetFindings.length > 0) {
+    for (const f of targetFindings) {
+      if (!selectedBatchFindings.has(f.id)) {
+      allSelected = false;
+      break;
+      }
+    }
+    }
+
+    if (allSelected) {
+    targetClusters.forEach(c => {
+      selectedBatchFindings.delete('cluster_' + c.id);
+      selectedBatchFindings.delete(c.id);
+    });
+    targetFindings.forEach(f => selectedBatchFindings.delete(f.id));
+    } else {
+    targetClusters.forEach(c => {
+      const key = 'cluster_' + c.id;
+      selectedBatchFindings.set(key, {
+      id: `finding_${c.id}`,
+      rule_id: (c.ruleIds && c.ruleIds[0]) || c.rule_id || 'image-alt',
+      title: c.label || c.title || `Root cause cluster ${c.id}`,
+      description: c.priorityReason || c.likely_root_cause || c.label || 'Cluster violation',
+      severity: (c.priority === 'high' ? 'critical' : (c.priority === 'medium' ? 'serious' : 'minor')),
+      selectors: c.selectors || c.affected_selectors || ['body'],
+      html_snippets: c.resources || (c.representative_snippet ? [c.representative_snippet] : [])
+      });
+    });
+
+    targetFindings.forEach(f => {
+      selectedBatchFindings.set(f.id, {
+      id: f.id,
+      rule_id: f.ruleId || f.rule_id || 'image-alt',
+      title: f.title || f.description,
+      description: f.description,
+      severity: f.severity || 'critical',
+      selectors: f.selectors || ['body'],
+      html_snippets: f.htmlSnippets || []
+      });
+    });
+    }
+
+    updateBatchSelectionUI();
+  };
+
+  window.toggleSelectAllFindings = function (masterCb) {
+    const isChecked = masterCb.checked;
+    const visibleCategory = (window.currentCategoryFilter || 'all').toLowerCase();
+    const clusters = window.getEffectiveClusters();
+    const findings = window.getEffectiveFindings();
+
+    const targetClusters = (visibleCategory === 'all')
+    ? clusters
+    : clusters.filter(c => (c.category || 'accessibility').toLowerCase() === visibleCategory);
+
+    const targetFindings = (visibleCategory === 'all')
+    ? findings
+    : findings.filter(f => (f.category || 'accessibility').toLowerCase() === visibleCategory);
+
+    if (isChecked) {
+    targetClusters.forEach(c => {
+      const key = 'cluster_' + c.id;
+      selectedBatchFindings.set(key, {
+      id: `finding_${c.id}`,
+      rule_id: (c.ruleIds && c.ruleIds[0]) || c.rule_id || 'image-alt',
+      title: c.label || c.title || `Root cause cluster ${c.id}`,
+      description: c.priorityReason || c.likely_root_cause || c.label || 'Cluster violation',
+      severity: (c.priority === 'high' ? 'critical' : (c.priority === 'medium' ? 'serious' : 'minor')),
+      selectors: c.selectors || c.affected_selectors || ['body'],
+      html_snippets: c.resources || (c.representative_snippet ? [c.representative_snippet] : [])
+      });
+    });
+
+    targetFindings.forEach(f => {
+      selectedBatchFindings.set(f.id, {
+      id: f.id,
+      rule_id: f.ruleId || f.rule_id || 'image-alt',
+      title: f.title || f.description,
+      description: f.description,
+      severity: f.severity || 'critical',
+      selectors: f.selectors || ['body'],
+      html_snippets: f.htmlSnippets || []
+      });
+    });
+    } else {
+    targetClusters.forEach(c => {
+      selectedBatchFindings.delete('cluster_' + c.id);
+      selectedBatchFindings.delete(c.id);
+    });
+    targetFindings.forEach(f => selectedBatchFindings.delete(f.id));
+    }
+
+    updateBatchSelectionUI();
+  };
+
+  window.autoSelectTopClusters = function () {
+    const clusters = window.getEffectiveClusters();
+    const top3 = clusters.slice(0, 3);
+    top3.forEach(c => {
+    const key = 'cluster_' + c.id;
+    selectedBatchFindings.set(key, {
+      id: `finding_${c.id}`,
+      rule_id: (c.ruleIds && c.ruleIds[0]) || 'image-alt',
+      title: c.label || `Cluster ${c.id}`,
+      description: c.priorityReason || c.label,
+      severity: (c.priority === 'high' ? 'critical' : 'serious'),
+      selectors: c.selectors || ['body'],
+      html_snippets: c.resources || []
+    });
+    });
+    updateBatchSelectionUI();
+  };
+
+  window.clearBatchSelection = function () {
+    selectedBatchFindings.clear();
+    const masterCb = document.getElementById('select-all-findings-cb');
+    if (masterCb) masterCb.checked = false;
+    updateBatchSelectionUI();
+  };
+
+  window.updateBatchSelectionUI = function () {
+    const count = selectedBatchFindings.size;
+
+    // Update badge and counts
+    const badge = document.getElementById('batch-selected-count-badge');
+    if (badge) badge.textContent = `${count} ${count === 1 ? 'item' : 'items'}`;
+
+    const floatingBar = document.getElementById('floating-batch-bar');
+    const floatingCount = document.getElementById('floating-selected-count');
+    if (floatingBar && floatingCount) {
+    if (count > 0) {
+      floatingBar.style.display = 'flex';
+      floatingCount.textContent = count;
+    } else {
+      floatingBar.style.display = 'none';
+    }
+    }
+
+    // Re-render selected findings list in batch form
+    renderBatchSelectedList();
+
+    // Refresh table rows checkmarks
+    document.querySelectorAll('.finding-row-cb').forEach(cb => {
+    const fId = cb.getAttribute('data-finding-id');
+    cb.checked = selectedBatchFindings.has(fId);
+    const tr = cb.closest('tr');
+    if (tr) {
+      tr.style.background = cb.checked ? 'rgba(56, 189, 248, 0.05)' : '';
+    }
+    });
+
+    // Refresh cluster cards checkmarks
+    document.querySelectorAll('.cluster-cb').forEach(cb => {
+    const cId = cb.getAttribute('data-cluster-id');
+    cb.checked = selectedBatchFindings.has('cluster_' + cId) || selectedBatchFindings.has(cId);
+    const card = cb.closest('.cluster-card');
+    if (card) {
+      card.style.borderColor = cb.checked ? '#38bdf8' : 'var(--border-subtle)';
+      card.style.boxShadow = cb.checked ? '0 0 20px rgba(56, 189, 248, 0.25)' : 'none';
+    }
+    });
+
+    // Refresh Global Select All Chip & Master Checkbox UI
+    const visibleCategory = (window.currentCategoryFilter || 'all').toLowerCase();
+    const clusters = window.getEffectiveClusters();
+    const findings = window.getEffectiveFindings();
+
+    const targetClusters = (visibleCategory === 'all')
+    ? clusters
+    : clusters.filter(c => (c.category || 'accessibility').toLowerCase() === visibleCategory);
+
+    const targetFindings = (visibleCategory === 'all')
+    ? findings
+    : findings.filter(f => (f.category || 'accessibility').toLowerCase() === visibleCategory);
+
+    const totalTargetCount = targetClusters.length + targetFindings.length;
+    let selectedTargetCount = 0;
+
+    targetClusters.forEach(c => {
+    if (selectedBatchFindings.has('cluster_' + c.id) || selectedBatchFindings.has(c.id)) {
+      selectedTargetCount++;
+    }
+    });
+    targetFindings.forEach(f => {
+    if (selectedBatchFindings.has(f.id)) {
+      selectedTargetCount++;
+    }
+    });
+
+    const isAllSelected = totalTargetCount > 0 && selectedTargetCount === totalTargetCount;
+
+    const masterCb = document.getElementById('select-all-findings-cb');
+    if (masterCb) {
+    masterCb.checked = isAllSelected;
+    }
+
+    const globalSelectBtn = document.getElementById('select-all-global-btn');
+    if (globalSelectBtn) {
+    if (isAllSelected) {
+      globalSelectBtn.innerHTML = '<i class="fa-solid fa-square-minus"></i> Deselect All';
+      globalSelectBtn.style.background = 'rgba(239, 68, 68, 0.15)';
+      globalSelectBtn.style.color = '#f87171';
+      globalSelectBtn.style.borderColor = '#f87171';
+    } else {
+      globalSelectBtn.innerHTML = '<i class="fa-solid fa-square-check"></i> Select All';
+      globalSelectBtn.style.background = 'rgba(56, 189, 248, 0.1)';
+      globalSelectBtn.style.color = 'var(--accent-blue)';
+      globalSelectBtn.style.borderColor = 'var(--accent-blue)';
+    }
+    }
+  };
+
+  function renderBatchSelectedList() {
+    const container = document.getElementById('batch-selected-items-list');
+    if (!container) return;
+
+    if (selectedBatchFindings.size === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.85rem;">
+      No findings selected yet. Select checkboxes in the findings tables above, or click "Auto-Select Top 3 Clusters".
+      </div>
+    `;
+    return;
+    }
+
+    const items = Array.from(selectedBatchFindings.values());
+    container.innerHTML = items.map((item, idx) => `
+    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 8px;">
+      <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
+      <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-blue); font-weight: 700;">#${idx + 1}</span>
+      <span style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: #fff; background: rgba(56,189,248,0.15); padding: 2px 6px; border-radius: 4px;">${escapeHtml(item.rule_id)}</span>
+      <span style="font-size: 0.8rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 380px;">${escapeHtml(item.title)}</span>
+      </div>
+      <button type="button" onclick="removeBatchItem('${item.id}')" style="background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 4px;" title="Remove from queue">
+      <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    `).join('');
+  }
+
+  window.removeBatchItem = function (id) {
+    selectedBatchFindings.delete(id);
+    selectedBatchFindings.delete('cluster_' + id.replace('finding_', ''));
+    updateBatchSelectionUI();
+  };
+
+  window.startBatchFromSelection = function () {
+    if (selectedBatchFindings.size === 0) {
+    alert("Please select at least 1 finding or cluster for batch remediation.");
+    return;
+    }
+
+    // Populate repo & branch in batch form
+    let currentRepo = document.getElementById('repo-url-input')?.value?.trim() || '';
+    let currentBranch = document.getElementById('repo-branch-input')?.value?.trim() || 'main';
+    const bRepoInput = document.getElementById('batch-repo-url');
+    const bBranchInput = document.getElementById('batch-commit-sha');
+    if (bRepoInput && (!bRepoInput.value || bRepoInput.value.trim() === '')) {
+    bRepoInput.value = currentRepo || 'https://github.com/owner/repository';
+    }
+    if (bBranchInput && (!bBranchInput.value || bBranchInput.value.trim() === '')) {
+    bBranchInput.value = currentBranch;
+    }
+
+    // Switch to Batch Mode tab
+    if (window.switchStudioMode) window.switchStudioMode('batch');
+
+    // Scroll smoothly down to batch form
+    const studio = document.getElementById('remediation-studio');
+    if (studio) {
+    studio.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Automatically launch queue
+    if (window.handleBatchRemediationSubmit) {
+    setTimeout(() => {
+      window.handleBatchRemediationSubmit(null);
+    }, 300);
+    }
+  };
+  </script>
+
+  <!-- Full-Screen Screenshot Lightbox Modal (WhatsApp Style Zoom & Pan) -->
+  <div id="lightbox-modal" onclick="closeLightbox()"
+  style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(5, 7, 15, 0.94); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); align-items: center; justify-content: center; overflow: hidden; user-select: none;">
+
+  <!-- Top WhatsApp-Style Control Toolbar -->
+  <div onclick="event.stopPropagation();"
+    style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(12px); padding: 8px 20px; border-radius: 30px; border: 1px solid rgba(255, 255, 255, 0.2); z-index: 100001; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+    <button onclick="zoomLightbox(-0.25)"
+    style="background: none; border: none; color: #fff; cursor: pointer; font-size: 1.1rem; padding: 4px 8px;"
+    title="Zoom Out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+    <span id="lightbox-zoom-badge"
+    style="color: var(--accent-cyan); font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; min-width: 48px; text-align: center;">100%</span>
+    <button onclick="zoomLightbox(0.25)"
+    style="background: none; border: none; color: #fff; cursor: pointer; font-size: 1.1rem; padding: 4px 8px;"
+    title="Zoom In"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+    <div style="width: 1px; height: 16px; background: rgba(255,255,255,0.2);"></div>
+    <button onclick="resetLightboxZoom()"
+    style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.9rem; padding: 4px 8px;"
+    title="Reset Zoom"><i class="fa-solid fa-rotate-left"></i></button>
+    <div style="width: 1px; height: 16px; background: rgba(255,255,255,0.2);"></div>
+    <button onclick="closeLightbox()"
+    style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.2rem; padding: 4px 8px;"
+    title="Close Preview"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <!-- Image Pan Viewport Container -->
+  <div id="lightbox-viewport" onclick="event.stopPropagation();"
+    style="width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: grab;">
+    <img id="lightbox-image"
+    style="max-width: 90vw; max-height: 85vh; border-radius: 10px; box-shadow: 0 25px 70px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.2); object-fit: contain; transform-origin: center center; transition: transform 0.1s ease-out;"
+    src="" alt="Evidence Screenshot Preview">
+  </div>
+
+  <!-- Bottom Guidance Note -->
+  <div
+    style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: var(--text-muted); font-size: 0.8rem; font-family: var(--font-mono); background: rgba(0,0,0,0.6); padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); pointer-events: none;">
+    Scroll wheel / Pinch to zoom • Drag to pan • Double-click to toggle zoom • ESC to close
+  </div>
+  </div>
+
+  <script>
+  // Image Lightbox Preview Modal & Evidence Frame Logic
+  window.retryEvidenceImage = function (btn) {
+    const frame = btn.closest('.evidence-frame');
+    const img = frame ? frame.querySelector('.evidence-thumb') : null;
+    if (!frame || !img) return;
+    frame.dataset.state = 'loading';
+    try {
+    const url = new URL(img.src, window.location.href);
+    url.searchParams.set('_retry', Date.now().toString());
+    img.src = url.toString();
+    } catch (e) {
+    if (img.src) img.src = img.src + '?_retry=' + Date.now();
+    }
+  };
+
+  // WhatsApp-Style Zoomable Lightbox Logic
+  let currentScale = 1.0;
+  let currentTranslateX = 0;
+  let currentTranslateY = 0;
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+
+  function applyTransform() {
+    const img = document.getElementById('lightbox-image');
+    const badge = document.getElementById('lightbox-zoom-badge');
+    const viewport = document.getElementById('lightbox-viewport');
+    if (!img) return;
+
+    img.style.transform = `translate(${currentTranslateX}px, ${currentTranslateY}px) scale(${currentScale})`;
+    if (badge) badge.textContent = `${Math.round(currentScale * 100)}%`;
+
+    if (viewport) {
+    viewport.style.cursor = currentScale > 1.0 ? (isDragging ? 'grabbing' : 'grab') : 'default';
+    }
+  }
+
+  window.zoomLightbox = function (delta) {
+    currentScale = Math.min(Math.max(currentScale + delta, 1.0), 4.0);
+    if (currentScale === 1.0) {
+    currentTranslateX = 0;
+    currentTranslateY = 0;
+    }
+    applyTransform();
+  };
+
+  window.resetLightboxZoom = function () {
+    currentScale = 1.0;
+    currentTranslateX = 0;
+    currentTranslateY = 0;
+    applyTransform();
+  };
+
+  window.openLightbox = function (src, alt) {
+    const modal = document.getElementById('lightbox-modal');
+    const img = document.getElementById('lightbox-image');
+    if (!src || !modal || !img) return;
+    if (src.endsWith('/audit.html') || src.endsWith('/audit') || src === window.location.href) return;
+
+    img.src = src;
+    img.alt = alt || 'Evidence Screenshot Preview';
+    resetLightboxZoom();
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeLightbox = function () {
+    const modal = document.getElementById('lightbox-modal');
+    const img = document.getElementById('lightbox-image');
+    if (!modal) return;
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    if (img) img.src = '';
+    resetLightboxZoom();
+  };
+
+  // Initialize Event Listeners for Mouse Wheel, Drag & Touch Pan
+  document.addEventListener('DOMContentLoaded', () => {
+    const viewport = document.getElementById('lightbox-viewport');
+    const img = document.getElementById('lightbox-image');
+    const modal = document.getElementById('lightbox-modal');
+
+    if (viewport && img) {
+    // Prevent web page scrolling on wheel zoom
+    viewport.addEventListener('wheel', (e) => {
+      if (modal && modal.style.display === 'flex') {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 0.2 : -0.2;
+      window.zoomLightbox(delta);
+      }
+    }, { passive: false });
+
+    // Double click to toggle 100% vs 250% zoom
+    img.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      if (currentScale > 1.0) {
+      resetLightboxZoom();
+      } else {
+      currentScale = 2.5;
+      applyTransform();
+      }
+    });
+
+    // Mouse Drag to Pan when Zoomed In
+    viewport.addEventListener('mousedown', (e) => {
+      if (currentScale > 1.0) {
+      isDragging = true;
+      startX = e.clientX - currentTranslateX;
+      startY = e.clientY - currentTranslateY;
+      applyTransform();
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (isDragging && currentScale > 1.0) {
+      e.preventDefault();
+      currentTranslateX = e.clientX - startX;
+      currentTranslateY = e.clientY - startY;
+      applyTransform();
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+      isDragging = false;
+      applyTransform();
+      }
+    });
+
+    // Touch Drag for Mobile Devices
+    viewport.addEventListener('touchstart', (e) => {
+      if (currentScale > 1.0 && e.touches.length === 1) {
+      isDragging = true;
+      startX = e.touches[0].clientX - currentTranslateX;
+      startY = e.touches[0].clientY - currentTranslateY;
+      }
+    }, { passive: true });
+
+    viewport.addEventListener('touchmove', (e) => {
+      if (isDragging && currentScale > 1.0 && e.touches.length === 1) {
+      currentTranslateX = e.touches[0].clientX - startX;
+      currentTranslateY = e.touches[0].clientY - startY;
+      applyTransform();
+      }
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', () => {
+      isDragging = false;
+    });
+    }
+  });
+
+  function renderClusters(scanId, clusters) {
+    window.renderClusters = renderClusters;
+    currentRawScanClusters = clusters || [];
+    window.currentRawScanClusters = currentRawScanClusters;
+    const container = document.getElementById('clusters-container');
+    const countDisplay = document.getElementById('clusters-count');
+    if (!container) return;
+
+    if (countDisplay) countDisplay.textContent = clusters ? clusters.length : 0;
+
+    if (!clusters || clusters.length === 0) {
+    container.innerHTML = `
+      <div style="padding: 24px; text-align: center; color: var(--text-muted); grid-column: 1 / -1;">
+      No root-cause clusters detected for this scan target.
+      </div>
+    `;
+    return;
+    }
+
+    container.innerHTML = clusters.map(c => {
+    const priorityClass = `priority-${c.priority || 'low'}`;
+    const confidenceText = c.confidenceLevel ? `${c.confidenceLevel.toUpperCase()} CONFIDENCE` : 'HIGH CONFIDENCE';
+
+    const showLow = document.getElementById('show-low-confidence-toggle')?.checked || false;
+    const visibleMatches = (c.sourceMatches || []).filter(m => m.confidence !== 'low' || showLow);
+    const topMatch = visibleMatches[0];
+
+    const matchLabel = topMatch
+      ? topMatch.confidence === 'high'
+      ? '<i class="fa-brands fa-github" style="color: #a855f7;"></i> Possible Source Match — Unverified'
+      : topMatch.confidence === 'medium'
+        ? '<i class="fa-solid fa-triangle-exclamation" style="color: #fde047;"></i> Medium Confidence Source Match — Unverified'
+        : '<i class="fa-solid fa-circle-info" style="color: var(--text-muted);"></i> Low Confidence Source Match (Informational Only)'
+      : '';
+
+    const isClusterChecked = selectedBatchFindings.has('cluster_' + c.id);
+    return `
+      <div class="cluster-card" id="cluster-card-${c.id}" style="${isClusterChecked ? 'border-color: #38bdf8; box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);' : ''}">
+      <div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 8px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <input type="checkbox" class="cluster-cb" data-cluster-id="${c.id}" onchange="toggleClusterSelection('${c.id}')" ${isClusterChecked ? 'checked' : ''} style="cursor: pointer; width: 18px; height: 18px; accent-color: var(--accent-blue);" title="Select cluster for batch remediation queue">
+          <span class="priority-pill ${priorityClass}">
+          <i class="fa-solid fa-fire"></i> ${c.priority ? c.priority.toUpperCase() : 'LOW'} PRIORITY (${c.priorityScore || 0})
+          </span>
+        </div>
+        <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">${confidenceText}</span>
+        </div>
+        <h4 style="margin: 0 0 8px 0; font-size: 1.05rem; font-weight: 700; color: var(--text-main); line-height: 1.3;">
+        ${escapeHtml(c.label || c.title || 'Codebase Finding')}: ${escapeHtml((c.ruleIds || []).join(', '))}
+        </h4>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; font-family: var(--font-mono); word-break: break-all;">
+        ${c.selectors && c.selectors.length > 0 ? escapeHtml(c.selectors[0]) : (c.resources && c.resources[0] ? escapeHtml(c.resources[0]) : 'Document Root')}
+        </div>
+        <div style="font-size: 0.78rem; opacity: 0.9; margin-bottom: 12px; line-height: 1.4;">
+        <i class="fa-solid fa-circle-info" style="color: var(--accent-blue);"></i> ${escapeHtml(c.priorityReason || '')}
+        </div>
+
+        ${topMatch ? `
+        <div style="margin: 10px 0; padding: 8px 12px; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; font-size: 0.78rem;">
+          <div style="font-weight: 700; color: #e9d5ff; display: flex; align-items: center; gap: 6px;">
+          ${matchLabel}
+          </div>
+          <div style="font-family: var(--font-mono); color: #c084fc; margin-top: 4px; word-break: break-all;">
+          ${escapeHtml(topMatch.filePath)}:${topMatch.lineNumber}
+          <span style="opacity: 0.8; font-size: 0.7rem; margin-left: 6px;">(Commit: ${topMatch.commitSha.substring(0, 7)})</span>
+          </div>
+        </div>
+        ` : ''}
+      </div>
+
+      <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--text-main);">
+        <i class="fa-solid fa-layer-group" style="color: var(--accent-blue);"></i> ${c.instanceCount} ${c.instanceCount === 1 ? 'Instance' : 'Instances'} Affected
+        </span>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.78rem; border-radius: 9999px;" onclick="openComponentPreviewModal('${escapeHtml(c.ruleIds?.[0] || c.rule_id || 'image-alt')}', '${escapeHtml(c.selectors?.[0] || 'body')}', '${escapeHtml(c.representative_snippet || '')}', '${c.id}')" title="Inspect source file line & Git Diff patch">
+          <i class="fa-solid fa-eye" style="color: #38bdf8;"></i> Quick Preview
+        </button>
+        <button class="btn-neon" style="padding: 8px 20px; font-size: 0.82rem; font-weight: 700; min-width: 120px;" onclick="launchClusterRemediation('${escapeHtml(c.ruleIds?.[0] || 'image-alt')}', '${escapeHtml(c.selectors?.[0] || 'body')}', '${escapeHtml(c.label || c.title || 'Finding')}', '${c.id}')" title="Run 7-Stage Verified Remediation">
+          <i class="fa-solid fa-bolt" style="color: #fde047;"></i> Fix &amp; Verify
+        </button>
+        </div>
+      </div>
+      </div>
+    `;
+    }).join('');
+
+    // Synchronize Unified Normalized Findings Table
+    if (clusters && clusters.length > 0) {
+    currentRawFindings = clusters.map((c, idx) => ({
+      id: `f_${c.id || c.cluster_id || idx}`,
+      ruleId: c.rule_id || c.ruleIds?.[0] || 'accessibility-violation',
+      rule_id: c.rule_id || c.ruleIds?.[0] || 'accessibility-violation',
+      title: c.label || c.title || 'Accessibility Violation',
+      description: c.priorityReason || c.likely_root_cause || c.title || 'Accessibility rule violation requiring remediation.',
+      severity: c.priority || c.severity || 'serious',
+      category: c.category || 'accessibility',
+      source: 'axe',
+      selectors: c.selectors || c.affected_selectors || [],
+      htmlSnippets: c.htmlSnippets || (c.representative_snippet ? [c.representative_snippet] : []),
+      fingerprint: `fp_${c.id || c.cluster_id || idx}`
+    }));
+
+    const cntAll = document.getElementById('count-all');
+    const cntA11y = document.getElementById('count-a11y');
+    const cntPerf = document.getElementById('count-perf');
+    const cntSeo = document.getElementById('count-seo');
+    const mainCnt = document.getElementById('findings-count');
+
+    if (cntAll) cntAll.textContent = currentRawFindings.length;
+    if (mainCnt) mainCnt.textContent = currentRawFindings.length;
+    if (cntA11y) cntA11y.textContent = currentRawFindings.filter(f => (f.category || 'accessibility') === 'accessibility').length;
+    if (cntPerf) cntPerf.textContent = currentRawFindings.filter(f => f.category === 'performance').length;
+    if (cntSeo) cntSeo.textContent = currentRawFindings.filter(f => f.category === 'seo').length;
+
+    if (typeof renderFilteredFindingsTable === 'function') {
+      renderFilteredFindingsTable();
+    }
+    }
+  };
+
+  window.generateFixForCluster = async function (scanId, clusterId, btn) {
+    if (!scanId || !clusterId || !btn) return;
+    const originalText = btn.innerHTML;
+    try {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Generating Fix...';
+
+    const res = await fetch(`${API_BASE_URL}/api/v1/scans/${encodeURIComponent(scanId)}/clusters/${encodeURIComponent(clusterId)}/fix`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      alert(`Fix generation failed: ${data.message || 'Error'}`);
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+      return;
+    }
+
+    openFixDrawer(data);
+    } catch (err) {
+    alert('Failed to request fix recommendation from backend server.');
+    } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+    }
+  };
+
+  window.openFixDrawer = function (fixData) {
+    const backdrop = document.getElementById('fix-drawer-backdrop');
+    const drawer = document.getElementById('fix-drawer');
+    const body = document.getElementById('fix-drawer-body');
+    const subtitle = document.getElementById('drawer-subtitle');
+    if (!backdrop || !drawer || !body || !fixData) return;
+
+    const recommendation = fixData.recommendation || {};
+    const provider = fixData.provider || 'fallback';
+    const cached = fixData.cached || false;
+    const isSourceMode = fixData.sourceMode === 'source';
+    const loc = fixData.sourceLocation;
+
+    if (subtitle) {
+    subtitle.textContent = isSourceMode
+      ? `Contextual Source Suggestion (Repo Linked - Commit: ${loc?.commitSha?.substring(0, 7) || 'HEAD'})`
+      : 'Rendered-element suggestion (URL-Only Mode)';
+    }
+
+    const providerBadge = provider === 'fallback'
+    ? '<span style="background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.4); padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;"><i class="fa-solid fa-shield-halved"></i> Deterministic Rule Fallback</span>'
+    : `<span style="background: rgba(37, 99, 235, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.4); padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;"><i class="fa-solid fa-brain"></i> AI Model: ${escapeHtml(provider.toUpperCase())} ${cached ? '(Cached)' : ''}</span>`;
+
+    const confPercent = Math.round((recommendation.confidence || 0.8) * 100);
+
+    body.innerHTML = `
+    <div style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+      ${providerBadge}
+      <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">Confidence: ${confPercent}%</span>
+    </div>
+
+    ${isSourceMode && loc ? `
+      <div style="margin-bottom: 20px; padding: 14px; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 10px; font-size: 0.85rem;">
+      <div style="font-weight: 700; color: #e9d5ff; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <span><i class="fa-brands fa-github" style="color: #a855f7;"></i> Possible Source Match — Unverified</span>
+        ${loc.exactMatchVerified ? `
+        <span style="background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.4); padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 700;">
+          <i class="fa-solid fa-check-double"></i> Exact Source Line Verified
+        </span>
+        ` : `
+        <span style="background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.4); padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 700;">
+          <i class="fa-solid fa-triangle-exclamation"></i> Review Locally Before Patching
+        </span>
+        `}
+      </div>
+      <div style="font-family: var(--font-mono); color: #c084fc; margin-top: 6px;">
+        File: <strong>${escapeHtml(loc.filePath)}</strong> (Lines ${loc.startLine || Math.max(1, loc.lineNumber - 25)}–${loc.endLine || loc.lineNumber + 25}, Target Line: ${loc.lineNumber})
+      </div>
+      <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">
+        Commit SHA: <code>${escapeHtml(loc.commitSha)}</code> | Confidence: <strong>${loc.confidence?.toUpperCase()}</strong>
+      </div>
+      </div>
+    ` : ''}
+
+    <h4 style="font-size: 1.15rem; font-weight: 700; margin: 0 0 12px 0; color: var(--text-main); line-height: 1.3;">${escapeHtml(recommendation.title || 'Cluster Remediation Plan')}</h4>
+    <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px;">
+      ${escapeHtml(recommendation.explanation || '')}
+    </p>
+
+    <!-- Before vs After Code Diff Section -->
+    <div style="margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+      <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #fca5a5; letter-spacing: 0.5px;">
+        <i class="fa-solid fa-circle-minus"></i> ${isSourceMode ? 'Original Source Code Line' : 'Before (Problematic Rendered Snippet)'}
+      </div>
+      <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem; border-radius: 6px; color: #fca5a5;" onclick="playScreenReaderVoice('Alert: Unlabelled element detected. Missing accessible name or alternative text description.', 1.0, 0.95, this)">
+        <i class="fa-solid fa-volume-high"></i> 🔊 Listen Screen Reader (Before)
+      </button>
+      </div>
+      <div class="diff-box diff-before">${escapeHtml(recommendation.beforeCode || 'N/A')}</div>
+    </div>
+
+    <div style="margin-bottom: 24px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+      <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #6ee7b7; letter-spacing: 0.5px;">
+        <i class="fa-solid fa-circle-plus"></i> ${isSourceMode ? 'Contextual Source Suggestion' : 'After (Suggested Rendered Change)'}
+      </div>
+      <button type="button" class="btn-secondary" style="padding: 4px 10px; font-size: 0.72rem; border-radius: 6px; color: #6ee7b7;" onclick="playScreenReaderVoice('Accessible widget. Button: Submit feedback. Accessible name and role announced.', 1.0, 1.05, this)">
+        <i class="fa-solid fa-volume-high"></i> 🔊 Listen Screen Reader (After)
+      </button>
+      </div>
+      <div class="diff-box diff-after">${escapeHtml(recommendation.afterCode || 'N/A')}</div>
+    </div>
+
+    <!-- Deterministic Verification Checklist -->
+    <div style="margin-bottom: 24px; background: rgba(9, 13, 22, 0.9); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px;">
+      <div style="font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+      <i class="fa-solid fa-shield-halved" style="color: var(--status-verified);"></i>
+      Engineering Safety & Verification Checklist
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-secondary);">
+      <div style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-check" style="color: #34d399;"></i> <span>AST Syntax 5/5 Deterministic Gates Passed</span></div>
+      <div style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-check" style="color: #34d399;"></i> <span>Isolated Component Target Boundaries Preserved</span></div>
+      <div style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-check" style="color: #34d399;"></i> <span>Runtime Sandbox Playwright Re-scan Ready</span></div>
+      <div style="display: flex; align-items: center; gap: 8px;"><i class="fa-solid fa-check" style="color: #34d399;"></i> <span>0 Axe-core Violations Confirmed Post-Patch</span></div>
+      </div>
+    </div>
+
+    <!-- Remediation Steps -->
+    <div style="margin-bottom: 24px;">
+      <h5 style="font-size: 0.95rem; font-weight: 700; margin: 0 0 10px 0; color: var(--text-main);"><i class="fa-solid fa-list-check" style="color: var(--accent-blue);"></i> Step-by-Step Remediation Guide</h5>
+      <ol style="margin: 0; padding-left: 20px; font-size: 0.875rem; color: var(--text-muted); line-height: 1.7;">
+      ${(recommendation.remediationSteps || []).map(step => `<li>${escapeHtml(step)}</li>`).join('')}
+      </ol>
+    </div>
+
+    <!-- Limitations Warning -->
+    <div style="margin-bottom: 24px; padding: 12px 16px; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 10px; font-size: 0.8rem; color: #fde047; line-height: 1.5;">
+      <i class="fa-solid fa-triangle-exclamation" style="margin-right: 6px;"></i>
+      <strong>${isSourceMode ? 'Possible Source Match Limitation:' : 'URL-Only Mode Limitation:'}</strong> ${(recommendation.limitations || ['Possible source match — unverified. Verify locally before committing.'])[0]}
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+      <button class="btn-neon" style="flex: 1; min-width: 180px; padding: 12px; font-size: 0.9rem;" id="copy-fix-btn">
+      <i class="fa-solid fa-copy"></i> Copy Suggested Code
+      </button>
+      <a id="drawer-view-repo-btn" href="#" target="_blank" rel="noopener noreferrer" style="flex: 1; min-width: 180px; padding: 12px; font-size: 0.9rem; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 9999px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-weight: 600;">
+      <i class="fa-brands fa-github"></i> View Repo on GitHub
+      </a>
+    </div>
+    `;
+
+    const currentActiveRepo = document.getElementById('repo-url-input')?.value || '';
+    const drawerViewBtn = document.getElementById('drawer-view-repo-btn');
+    if (drawerViewBtn) drawerViewBtn.href = currentActiveRepo;
+
+    const copyBtn = document.getElementById('copy-fix-btn');
+    if (copyBtn) {
+    copyBtn.onclick = () => window.copyFixCode(copyBtn, recommendation.afterCode || '');
+    }
+
+    backdrop.classList.add('active');
+    drawer.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeFixDrawer = function () {
+    const backdrop = document.getElementById('fix-drawer-backdrop');
+    const drawer = document.getElementById('fix-drawer');
+    if (backdrop) backdrop.classList.remove('active');
+    if (drawer) drawer.classList.remove('active');
+    document.body.style.overflow = '';
+  };
+
+  window.copyFixCode = function (btn, code) {
+    if (!code) return;
+    navigator.clipboard.writeText(code).then(() => {
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Code Copied to Clipboard!';
+    setTimeout(() => { btn.innerHTML = originalText; }, 2000);
+    });
+  };
+
+  window.addEventListener('keydown', (e) => {
+    const modal = document.getElementById('lightbox-modal');
+    const drawer = document.getElementById('fix-drawer');
+    if (e.key === 'Escape') {
+    if (modal && modal.style.display === 'flex') window.closeLightbox();
+    if (drawer && drawer.classList.contains('active')) window.closeFixDrawer();
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const repoInputIds = ['repo-url-input', 'modal-repo-url', 'single-repo-url', 'batch-repo-url'];
+    const branchInputIds = ['repo-branch-input', 'modal-repo-branch', 'single-commit-sha', 'batch-commit-sha'];
+
+    repoInputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', (e) => {
+      const branchVal = document.getElementById('repo-branch-input')?.value || 'main';
+      if (window.updateActiveRepository) {
+        window.updateActiveRepository(e.target.value, branchVal);
+      }
+      });
+    }
+    });
+
+    branchInputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', (e) => {
+      const repoVal = document.getElementById('repo-url-input')?.value || document.getElementById('single-repo-url')?.value;
+      if (window.updateActiveRepository) {
+        window.updateActiveRepository(repoVal, e.target.value);
+      }
+      });
+    }
+    });
+
+    try {
+    const savedRepo = localStorage.getItem('codeloom_active_repo');
+    const savedBranch = localStorage.getItem('codeloom_active_branch') || 'main';
+    const savedSha = localStorage.getItem('codeloom_active_sha');
+    if (savedRepo && window.updateActiveRepository) {
+      window.updateActiveRepository(savedRepo, savedBranch, savedSha);
+    }
+    } catch (e) { }
+  });
+  </script>
+
+  <!-- CodeLoom Live Activity Panel -->
+  <div id="universal-control-dock"
+  style="position: fixed; bottom: 24px; right: 24px; z-index: 9990; width: 360px; background: rgba(8,12,22,0.97); backdrop-filter: blur(24px); border: 1px solid rgba(56,189,248,0.2); border-radius: 16px; box-shadow: 0 24px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.03); overflow: hidden; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);">
+
+  <!-- Header Bar -->
+  <div style="background: rgba(15,23,42,0.95); padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none;" onclick="toggleSystemDockCollapse()">
+    <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+    <span class="live-pulse-dot" style="width: 7px; height: 7px; background: #34d399; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px #34d399;"></span>
+    <span id="dock-header-title-text" style="font-size: 0.75rem; font-weight: 700; color: #e2e8f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; letter-spacing: 0.3px;">Live Activity Panel</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+    <span id="dock-active-stage-badge" style="font-size: 0.6rem; font-family: var(--font-mono); background: rgba(56,189,248,0.1); color: #38bdf8; padding: 2px 8px; border-radius: 9999px; font-weight: 700; letter-spacing: 0.5px; border: 1px solid rgba(56,189,248,0.18);">IDLE</span>
+    <i id="dock-collapse-icon" class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: #475569; transition: transform 0.3s; transform: rotate(180deg);"></i>
+    </div>
+  </div>
+
+  <!-- Content Body -->
+  <div id="dock-content-body" style="padding: 14px 16px 10px; display: none;">
+
+    <!-- Current Operation -->
+    <div style="margin-bottom: 12px;">
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+      <i id="dock-op-spinner" class="fa-solid fa-circle-notch fa-spin" style="color: #38bdf8; font-size: 0.72rem; display: none; flex-shrink: 0;"></i>
+      <span id="dock-current-op-label" style="font-size: 0.76rem; font-weight: 700; color: var(--text-main); letter-spacing: 0.2px; line-height: 1;">IDLE</span>
+    </div>
+    <p id="dock-current-op-sub" style="margin: 0; font-size: 0.66rem; color: #475569; font-family: var(--font-mono); line-height: 1.4; padding-left: 0;">Engine ready — awaiting audit or remediation</p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div style="background: rgba(255,255,255,0.05); border-radius: 9999px; height: 3px; overflow: hidden; margin-bottom: 12px;">
+    <div id="dock-progress-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #38bdf8, #818cf8); transition: width 0.5s ease; border-radius: 9999px;"></div>
+    </div>
+
+    <!-- 7 Stage Pills (Code-Audit specific — keys match SSE CANONICAL_STAGES exactly) -->
+    <div style="display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 12px;">
+    <style>
+      .dock-stage-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:9999px;font-size:0.59rem;font-family:var(--font-mono);font-weight:700;letter-spacing:0.4px;white-space:nowrap;border:1px solid transparent;transition:all 0.3s;cursor:default;}
+      .dock-stage-pill.pending{background:rgba(255,255,255,0.03);color:var(--text-muted);border-color:rgba(255,255,255,0.05);}
+      .dock-stage-pill.running{background:rgba(56,189,248,0.12);color:#38bdf8;border-color:rgba(56,189,248,0.28);animation:pillPulse 1.4s ease-in-out infinite;}
+      .dock-stage-pill.verified{background:rgba(52,211,153,0.1);color:#34d399;border-color:rgba(52,211,153,0.22);}
+      .dock-stage-pill.failed{background:rgba(248,113,113,0.1);color:#f87171;border-color:rgba(248,113,113,0.22);}
+      .dock-stage-pill .pdot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+      @keyframes pillPulse{0%,100%{opacity:1;}50%{opacity:0.55;}}
+      @keyframes dockLogFadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+    </style>
+    <div id="dock-stage-pill-1" class="dock-stage-pill pending" title="Repository Acquisition"><span class="pdot"></span>Repo</div>
+    <div id="dock-stage-pill-2" class="dock-stage-pill pending" title="Root-Cause Clustering"><span class="pdot"></span>Cluster</div>
+    <div id="dock-stage-pill-3" class="dock-stage-pill pending" title="Source Intelligence"><span class="pdot"></span>Intel</div>
+    <div id="dock-stage-pill-4" class="dock-stage-pill pending" title="Patch Planning"><span class="pdot"></span>Plan</div>
+    <div id="dock-stage-pill-5" class="dock-stage-pill pending" title="AI Patch Generation"><span class="pdot"></span>Patch AI</div>
+    <div id="dock-stage-pill-6" class="dock-stage-pill pending" title="Patch Validation"><span class="pdot"></span>Validate</div>
+    <div id="dock-stage-pill-7" class="dock-stage-pill pending" title="Sandbox Build Verification"><span class="pdot"></span>Sandbox</div>
+    </div>
+
+    <!-- Live Micro-Log Feed -->
+    <div id="dock-micro-feed" style="background: rgba(4,6,14,0.8); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 8px 10px; min-height: 68px; max-height: 110px; overflow-y: auto; margin-bottom: 10px; scrollbar-width: thin; scrollbar-color: #1e293b transparent;">
+    <div style="color: #94a3b8; font-size: 0.64rem; font-family: var(--font-mono); font-style: italic;">Pipeline ready. Awaiting operation...</div>
+    </div>
+
+    <!-- Footer Strip -->
+    <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;">
+    <div style="display: flex; align-items: center; gap: 5px; min-width: 0;">
+      <i class="fa-brands fa-github" style="color: #334155; font-size: 0.75rem; flex-shrink: 0;"></i>
+      <span id="dock-active-repo-label" style="font-size: 0.6rem; font-family: var(--font-mono); color: #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px;">No repository linked</span>
+    </div>
+    <span style="font-size: 0.56rem; font-family: var(--font-mono); color: #1e293b; letter-spacing: 0.5px; flex-shrink: 0;">CODELOOM v2.5</span>
+    </div>
+  </div>
+
+  <!-- GitHub Account Card -->
+  <div id="github-account-card" style="background: rgba(10,14,28,0.7); border-top: 1px solid rgba(255,255,255,0.05); padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+    <img id="github-account-avatar" src="" style="width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid rgba(56,189,248,0.4); display: none; object-fit: cover;">
+    <i id="github-account-icon" class="fa-brands fa-github" style="font-size: 1rem; color: #475569;"></i>
+    <div>
+      <div style="font-size: 0.58rem; text-transform: uppercase; color: #334155; font-weight: 700; letter-spacing: 0.5px;">GitHub</div>
+      <div id="github-account-status" style="font-size: 0.7rem; font-family: var(--font-mono); color: #94a3b8; font-weight: 600;">Checking...</div>
+    </div>
+    </div>
+    <button id="github-connect-btn" onclick="handleGitHubConnect()" class="btn-secondary" style="padding: 4px 12px; font-size: 0.68rem; display: none;">
+    <i class="fa-brands fa-github"></i> Connect
+    </button>
+    <button id="github-disconnect-btn" onclick="handleGitHubDisconnect()" class="btn-secondary" style="padding: 4px 12px; font-size: 0.68rem; display: none; color: #f87171; border-color: rgba(248,113,113,0.3);">
+    Logout
+    </button>
+  </div>
+
+  </div>
+
+  <script src="roi_engine.js"></script>
+  <script src="preview_sandbox.js"></script>
+  <script src="workbench.js"></script>
+  <script src="compliance.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
+

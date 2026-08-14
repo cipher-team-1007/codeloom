@@ -1,0 +1,11 @@
+--- a/src/components/ProductCard.tsx
++++ b/src/components/ProductCard.tsx
+@@ -4,8 +4,8 @@
+   return (
+     <div className="product-card" data-title={title}>
+       {/* Intentionally missing alt attribute */}
+-      <img className="product-image" src={image} />
++      <img className="product-image" src={image} alt={title} />
+       <h3>{title}</h3>
+     </div>
+   );

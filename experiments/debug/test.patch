@@ -1,0 +1,31 @@
+--- a/index.html
++++ b/index.html
+@@ -2,27 +2,27 @@
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form & Flow | Premium Fitness Studio</title>
+    <meta name="description" content="Form & Flow | Premium Fitness Studio">
+    <link rel="canonical" href="https://example.com">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "AccessiFix Audited App",
+      "url": "https://example.com",
+      "logo": "https://example.com/logo.png",
+      "keywords": ""
+    }
+    </script>
+    <meta property="og:title" content="AccessiFix Audited App">
+    <meta property="og:description" content="Discover and resolve accessibility issues in modern web applications.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://example.com">
+    <meta property="og:image" content="https://example.com/og-image.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+  </head>
+  <body>
+-   <div id="root"></div>
++   <main id="root"></main>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>

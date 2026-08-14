@@ -1,0 +1,171 @@
+rules:
+  - rule_id: "html-has-lang"
+    title: "HTML must have lang attribute"
+    wcag_criteria: "3.1.1"
+    wcag_url: "https://www.w3.org/WAI/WCAG21/Understanding/language-of-page"
+    principle: "understandable"
+    level: "A"
+    severity_default: "serious"
+    has_template_fix: true
+    context_dependent: false
+    affected_users: ["screen reader users", "translation tool users"]
+    assistive_tech_impact: "Screen readers may use wrong pronunciation rules"
+    fix_template:
+      title: "Add language attribute to HTML element"
+      explanation: "Screen readers use the lang attribute to switch pronunciation rules. Without it, an English page may be read with French pronunciation rules if that's the user's default."
+      root_cause: "Missing lang attribute on <html> element"
+      confidence: 0.97
+      manual_review: false
+      pattern: "add_attribute"
+      attribute_name: "lang"
+      attribute_value: "en"
+      target_tag: "html"
+      validation_steps:
+        - "Verify <html> has lang attribute"
+        - "Confirm language code matches page content"
+
+  - rule_id: "document-title"
+    title: "Page must have a title"
+    wcag_criteria: "2.4.2"
+    wcag_url: "https://www.w3.org/WAI/WCAG21/Understanding/page-titled"
+    principle: "operable"
+    level: "A"
+    severity_default: "serious"
+    has_template_fix: true
+    context_dependent: true
+    affected_users: ["screen reader users", "all users"]
+    assistive_tech_impact: "Screen readers announce 'untitled document' on page load"
+    fix_template:
+      title: "Add descriptive page title"
+      explanation: "The <title> is the first thing screen readers announce when a page loads. It helps users identify which page they're on, appears in browser tabs, bookmarks, and search results."
+      root_cause: "Missing or empty <title> element in <head>"
+      confidence: 0.80
+      manual_review: true
+      pattern: "add_element"
+      validation_steps:
+        - "Verify <title> element exists in <head>"
+        - "Check title is descriptive and unique"
+
+  - rule_id: "button-name"
+    title: "Buttons must have accessible names"
+    wcag_criteria: "4.1.2"
+    wcag_url: "https://www.w3.org/WAI/WCAG21/Understanding/name-role-value"
+    principle: "robust"
+    level: "A"
+    severity_default: "critical"
+    has_template_fix: true
+    context_dependent: true
+    affected_users: ["screen reader users", "voice control users"]
+    assistive_tech_impact: "JAWS/NVDA announce 'button' with no label — user cannot determine purpose"
+    fix_template:
+      title: "Add accessible names to buttons"
+      explanation: "Screen readers announce buttons by their accessible name. Without one, users hear 'button' with no context. Voice control users cannot target the button by name."
+      root_cause: "Icon-only buttons without text content or aria-label"
+      confidence: 0.88
+      manual_review: true
+      pattern: "add_attribute"
+      attribute_name: "aria-label"
+      validation_steps:
+        - "Verify button has aria-label or visible text"
+        - "Check label matches the button's action"
+        - "Test with screen reader"
+
+  - rule_id: "image-alt"
+    title: "Images must have alt text"
+    wcag_criteria: "1.1.1"
+    wcag_url: "https://www.w3.org/WAI/WCAG21/Understanding/non-text-content"
+    principle: "perceivable"
+    level: "A"
+    severity_default: "critical"
+    has_template_fix: true
+    context_dependent: true
+    affected_users: ["screen reader users", "users with images disabled"]
+    assistive_tech_impact: "Screen readers skip the image or read the filename"
+    fix_template:
+      title: "Add descriptive alt text to images"
+      explanation: "Without alt text, screen readers either skip images entirely or read the filename. Users who cannot see images get no information about their content."
+      root_cause: "Missing alt attribute on <img> elements"
+      confidence: 0.85
+      manual_review: true
+      pattern: "add_attribute"
+      attribute_name: "alt"
+      validation_steps:
+        - "Verify alt attribute is present"
+        - "Check alt text describes image content"
+        - "Use alt='' only for purely decorative images"
+
+  - rule_id: "label"
+    title: "Form inputs must have labels"
+    wcag_criteria: "1.3.1"
+    wcag_url: "https://www.w3.org/WAI/WCAG21/Understanding/info-and-relationships"
+    principle: "perceivable"
+    level: "A"
+    severity_default: "critical"
+    has_template_fix: true
+    context_dependent: true
+    affected_users: ["screen reader users", "voice control users"]
+    fix_template:
+      title: "Associate labels with form inputs"
+      explanation: "Without labels, screen readers cannot tell users what to enter. Voice control users cannot target the field by speaking its name."
+      root_cause: "Form inputs without associated <label> elements"
+      confidence: 0.85
+      manual_review: true
+      pattern: "add_label"
+      validation_steps:
+        - "Verify each input has a <label> with matching for attribute"
+        - "Or verify input has aria-label"
+
+  - rule_id: "link-name"
+    title: "Links must have discernible text"
+    wcag_criteria: "2.4.4"
+    wcag_url: "https://www.w3.org/WAI/WCAG21/Understanding/link-purpose-in-context"
+    principle: "operable"
+    level: "A"
+    severity_default: "serious"
+    has_template_fix: true
+    context_dependent: true
+    affected_users: ["screen reader users"]
+    fix_template:
+      title: "Add meaningful text to links"
+      explanation: "Screen readers can list all links on a page. Links without text are listed as empty or with just the URL, making navigation impossible."
+      root_cause: "Links containing only icons or images without text"
+      confidence: 0.85
+      manual_review: true
+      pattern: "add_attribute"
+      attribute_name: "aria-label"
+      validation_steps:
+        - "Verify link has visible text or aria-label"
+        - "Avoid generic labels like 'click here' or 'read more'"
+
+  - rule_id: "color-contrast"
+    title: "Text must meet contrast ratio"
+    wcag_criteria: "1.4.3"
+    wcag_url: "https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum"
+    principle: "perceivable"
+    level: "AA"
+    severity_default: "serious"
+    has_template_fix: false
+    context_dependent: true
+    affected_users: ["low vision users", "color blind users"]
+    assistive_tech_impact: "Text is unreadable for users with low vision"
+
+  - rule_id: "aria-hidden-focus"
+    title: "aria-hidden elements should not be focusable"
+    wcag_criteria: "4.1.2"
+    principle: "robust"
+    level: "A"
+    severity_default: "serious"
+    has_template_fix: true
+    context_dependent: false
+    fix_template:
+      title: "Remove focusability from aria-hidden elements"
+      explanation: "Elements with aria-hidden='true' are invisible to screen readers. If they can also receive focus, keyboard users get trapped in invisible elements."
+      root_cause: "Focusable elements inside aria-hidden containers"
+      confidence: 0.92
+      manual_review: false
+      pattern: "add_attribute"
+      attribute_name: "tabindex"
+      attribute_value: "-1"
+      validation_steps:
+        - "Verify aria-hidden elements cannot receive keyboard focus"
+        - "Check no interactive elements exist inside aria-hidden containers"
